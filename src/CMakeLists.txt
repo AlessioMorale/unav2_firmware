@@ -1,8 +1,10 @@
 # add the sources here
+file(GLOB_RECURSE cpp_sources "*.cpp")
+file(GLOB_RECURSE c_sources "*.c")
+
 set(sources
-    main.cpp
-    system_stm32f4xx.c
-    stm32f4xx_hal_timebase_tim.c
+    ${cpp_sources}
+    ${c_sources}
     startup_stm32f405xx.s
 )
 
@@ -27,6 +29,8 @@ add_executable(${elf_file} ${sources})
 target_link_libraries(${elf_file} PUBLIC stm32f4xx)
 target_link_libraries(${elf_file} PUBLIC etl)
 target_link_libraries(${elf_file} PUBLIC nanopb)
+target_link_libraries(${elf_file} PUBLIC tinyusb)
+target_link_libraries(${elf_file} PUBLIC freertos_kernel)
 
 # set additional for compiler and linker: optimization and generate map file
 set(additional_compiler_flags ${opt_level})

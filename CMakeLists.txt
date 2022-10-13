@@ -23,8 +23,16 @@ set(application_name "uNav2")
 
 project (${application_name} C CXX ASM)
 
+# FreeRTOS settings
+set(FREERTOS_CONFIG_FILE_DIRECTORY "../include" CACHE STRING "")
+set(FREERTOS_PORT "GCC_ARM_CM4F" CACHE STRING "")
+
+# TinyUSB settings
+
+add_definitions(-DCFG_TUSB_MCU=OPT_MCU_STM32F4)
+
 # STM32-specific settings
-set(DEVICE_FAMILY STM32F40_41xxx)
+set(DEVICE_FAMILY STM32F40_41xxx CACHE STRING "")
 add_compile_definitions(STM32F405xx)
 
 # Speed of external resonator
