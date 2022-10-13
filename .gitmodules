@@ -1,0 +1,18 @@
+[submodule "testing/cpputest"]
+	path = testing/cpputest
+	url = https://github.com/cpputest/cpputest.git
+[submodule "lib/stm32f4xx_hal_driver"]
+	path = lib/stm32f4xx_hal_driver
+	url = https://github.com/STMicroelectronics/stm32f4xx_hal_driver.git
+[submodule "lib/cmsis_device_f4"]
+	path = lib/cmsis_device_f4
+	url = https://github.com/STMicroelectronics/cmsis_device_f4.git
+[submodule "lib/cmsis_core"]
+	path = lib/cmsis_core
+	url = https://github.com/STMicroelectronics/cmsis_core.git
+[submodule "lib/etl"]
+	path = lib/etl
+	url = https://github.com/ETLCPP/etl
+[submodule "lib/nanopb"]
+	path = lib/nanopb
+	url = https://github.com/nanopb/nanopb.git
