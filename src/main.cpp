@@ -1,4 +1,4 @@
-#include "stm32f4xx.h"
+#include <stm32f4xx_hal.h>
 #include "pb.h"
 #include "etl/vector.h"
 
@@ -6,18 +6,17 @@ extern "C" int main()
 {
   // Switch on blue LED on STM32F407Discovery
 
-  RCC_AHB1PeriphClockCmd(RCC_AHB1Periph_GPIOD, ENABLE);
+  __HAL_RCC_GPIOD_CLK_ENABLE();
 
   GPIO_InitTypeDef gpio_out = {
-    .GPIO_Pin = GPIO_Pin_15,
-    .GPIO_Mode = GPIO_Mode_OUT,
-    .GPIO_Speed = GPIO_High_Speed,
-    .GPIO_OType = GPIO_OType_PP,
-    .GPIO_PuPd = GPIO_PuPd_NOPULL
+    .Pin = GPIO_PIN_15,
+    .Mode = GPIO_MODE_OUTPUT_PP,
+    .Pull = GPIO_NOPULL,
+    .Speed = GPIO_SPEED_FREQ_HIGH
   };
 
-  GPIO_Init(GPIOD, &gpio_out);
-  GPIO_WriteBit(GPIOD, GPIO_Pin_15, Bit_SET);
+  HAL_GPIO_Init(GPIOD, &gpio_out);
+  HAL_GPIO_WritePin(GPIOD, GPIO_PIN_15, GPIO_PIN_SET);
 
   for (;;);
 

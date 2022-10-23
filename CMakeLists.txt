@@ -45,7 +45,7 @@ get_filename_component(LINKER_SCRIPT linker/STM32F405RGTx_FLASH.ld ABSOLUTE)
 #set(ADDITIONAL_CORE_FLAGS -flto)
 
 # OpenOCD config file
-get_filename_component(OPENOCD_CONFIG tools/stm32f4discovery.cfg ABSOLUTE)
+get_filename_component(OPENOCD_CONFIG tools/openocd.cfg ABSOLUTE)
 
 # add libraries
 add_subdirectory(lib)
