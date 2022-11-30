@@ -34,27 +34,29 @@
 // Board Specific Configuration
 //--------------------------------------------------------------------+
 
-// RHPort number used for device can be defined by board.mk, default to port 0
-#ifndef BOARD_TUD_RHPORT
+#define BOARD_DEVICE_RHPORT_SPEED OPT_MODE_FULL_SPEED
 #define BOARD_TUD_RHPORT      0
-#endif
-
-// RHPort max operational speed can defined by board.mk
-#ifndef BOARD_TUD_MAX_SPEED
 #define BOARD_TUD_MAX_SPEED   OPT_MODE_DEFAULT_SPEED
-#endif
+#define BOARD_DEVICE_RHPORT_NUM 0
 
-//--------------------------------------------------------------------
-// COMMON CONFIGURATION
-//--------------------------------------------------------------------
+ //--------------------------------------------------------------------
+ // COMMON CONFIGURATION
+ //--------------------------------------------------------------------
 
-// defined by board.mk
-#ifndef CFG_TUSB_MCU
-#error CFG_TUSB_MCU must be defined
-#endif
+// Pizza Robotics uNav2 https://pid.codes/1209/A770/
+#define USB_VID 0x1209
+#define USB_PID 0xA770
+#define USB_BCD 0x0200
+#define USB_DESC_MANUFACTURER "PizzaRobotics"
+#define USB_DESC_PRODUCT "uNav"
+#define USB_DESC_SERIAL "123456"
+#define USB_DESC_CDC_INTERFACE "Serial control interface"
+
+ // defined by board.mk
+#define CFG_TUSB_MCU OPT_MCU_STM32F4
 
 // This examples use FreeRTOS
-#define CFG_TUSB_OS           OPT_OS_FREERTOS
+#define CFG_TUSB_OS OPT_OS_FREERTOS
 
 // Espressif IDF requires "freertos/" prefix in include path
 #if TU_CHECK_MCU(OPT_MCU_ESP32S2, OPT_MCU_ESP32S3)

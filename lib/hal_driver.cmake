@@ -70,6 +70,7 @@ set(sources
     stm32f4xx_hal_driver/Src/stm32f4xx_hal_uart.c
     stm32f4xx_hal_driver/Src/stm32f4xx_hal_usart.c
     stm32f4xx_hal_driver/Src/stm32f4xx_hal_wwdg.c
+    stm32f4xx_hal_driver/Src/stm32f4xx_hal.c
     misc/pure_virtual.c            # this is needed for CPP size optimization
 )
 

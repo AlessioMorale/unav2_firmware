@@ -68,7 +68,7 @@ extern unsigned long getRunTimeCounterValue(void);
 #define configMINIMAL_STACK_SIZE ((uint16_t)128)
 #define configTOTAL_HEAP_SIZE ((size_t)65535)
 #define configMAX_TASK_NAME_LEN (16)
-#define configGENERATE_RUN_TIME_STATS 1
+#define configGENERATE_RUN_TIME_STATS 0
 #define configUSE_16_BIT_TICKS 0
 #define configUSE_MUTEXES 1
 #define configQUEUE_REGISTRY_SIZE 8
@@ -77,6 +77,12 @@ extern unsigned long getRunTimeCounterValue(void);
 #define configUSE_RECURSIVE_MUTEXES 1
 #define configUSE_PORT_OPTIMISED_TASK_SELECTION 1
 #define configRECORD_STACK_HIGH_ADDRESS 1
+
+/* Software timer related definitions. */
+#define configUSE_TIMERS 1
+#define configTIMER_TASK_PRIORITY 3
+#define configTIMER_QUEUE_LENGTH 10
+#define configTIMER_TASK_STACK_DEPTH configMINIMAL_STACK_SIZE
 
 /* Co-routine definitions. */
 #define configUSE_CO_ROUTINES 0

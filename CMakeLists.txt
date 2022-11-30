@@ -15,6 +15,10 @@ endif()
 # set search path for CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/Modules)
 
+#generic settings
+# Speed of external resonator
+set(HSE_VALUE 8000000 CACHE STRING "")
+
 # include OpenOCD module, but make it not required
 find_package(Openocd)
 
@@ -29,14 +33,9 @@ set(FREERTOS_PORT "GCC_ARM_CM4F" CACHE STRING "")
 
 # TinyUSB settings
 
-add_definitions(-DCFG_TUSB_MCU=OPT_MCU_STM32F4)
-
 # STM32-specific settings
 set(DEVICE_FAMILY STM32F40_41xxx CACHE STRING "")
 add_compile_definitions(STM32F405xx)
-
-# Speed of external resonator
-set(HSE_VALUE 8000000)
 
 # Used linker file (just for testing)
 get_filename_component(LINKER_SCRIPT linker/STM32F405RGTx_FLASH.ld ABSOLUTE)
