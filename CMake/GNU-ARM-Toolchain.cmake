@@ -36,13 +36,13 @@ set(MCU "${CPU} -mthumb ${FPU} ${FLOAT-ABI} -fsingle-precision-constant")
 set(CORE_FLAGS "${MCU} -mthumb-interwork --specs=nano.specs --specs=nosys.specs ${ADDITIONAL_CORE_FLAGS}")
 
 # compiler: language specific flags
-set(CMAKE_C_FLAGS "${CORE_FLAGS} -fno-builtin -Wall -std=gnu99 -fdata-sections -ffunction-sections  -Wall -fno-common -fstack-usage -g3 -gdwarf-2" CACHE INTERNAL "c compiler flags")
+set(CMAKE_C_FLAGS "${CORE_FLAGS} -fno-builtin -Wall -std=c17 -fdata-sections -ffunction-sections  -Wall -fno-common -fstack-usage -g3 -gdwarf-2" CACHE INTERNAL "c compiler flags")
 set(CMAKE_C_FLAGS_DEBUG "" CACHE INTERNAL "c compiler flags: Debug")
 set(CMAKE_C_FLAGS_RELEASE "" CACHE INTERNAL "c compiler flags: Release")
 
 set(ARM_CFLAGS  "-Wall -Wextra -Wfatal-errors -Wpacked -Winline -Wfloat-equal -Wconversion -Wlogical-op -Wpointer-arith -Wdisabled-optimization -Wno-unused-parameter -Wa,-alh=$(@:.o=.lst) -MMD -MP -MF\"$(@:%.o=%.d)\" -Wall")
 
-set(CMAKE_CXX_FLAGS "${CORE_FLAGS} -fno-rtti -fno-exceptions -fno-builtin -Wall -std=gnu++11 -fdata-sections -ffunction-sections -g -ggdb3" CACHE INTERNAL "cxx compiler flags")
+set(CMAKE_CXX_FLAGS "${CORE_FLAGS} -fno-rtti -fno-exceptions -fno-builtin -Wall -std=c++17 -fdata-sections -ffunction-sections -g -ggdb3" CACHE INTERNAL "cxx compiler flags")
 set(CMAKE_CXX_FLAGS_DEBUG "-g -gdwarf-2" CACHE INTERNAL "cxx compiler flags: Debug")
 set(CMAKE_CXX_FLAGS_RELEASE "" CACHE INTERNAL "cxx compiler flags: Release")
 
