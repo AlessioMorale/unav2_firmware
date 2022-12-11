@@ -1,0 +1,31 @@
+{
+    "configurations": [
+        {
+            "browse": {
+                "databaseFilename": "${default}",
+                "limitSymbolsToIncludedHeaders": false
+            },
+            "includePath": [
+                "include",
+                "lib/FreeRTOS-Kernel/include",
+                "lib/FreeRTOS-Kernel/portable/GCC/ARM_CM4F",
+                "lib/etl/include",
+                "lib/cmsis_device_f4/Include",
+                "lib/nanopb",
+                "lib/stm32f4xx_hal_driver/Inc",
+                "lib/tinyusb/src",
+                "lib/lwip/src/include",
+                "lib/lwip/src/include/ipv4",
+                "lib/lwip/src/include/lwip/apps",
+                "lib/tinyusb/lib/networking"
+            ],
+            "name": "fw",
+            "intelliSenseMode": "gcc-x64",
+            "compilerPath": "/usr/bin/gcc",
+            "cStandard": "gnu11",
+            "cppStandard": "c++14",
+            "configurationProvider": "ms-vscode.makefile-tools"
+        }
+    ],
+    "version": 4
+}
