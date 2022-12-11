@@ -4,22 +4,27 @@
 #include "configuration.h"
 #include <FreeRTOS.h>
 #include <inttypes.h>
-#include <stream_buffer.h>
+#include <comm/streaming_if.h>
+using unav::comm::serial_stream_t;
+
 namespace unav {
 enum class serial_streams_ids : size_t { COMM_SERIAL, CLI_SERIAL, COUNT };
 
-typedef struct {
-  StreamBufferHandle_t rx_stream;
-  StreamBufferHandle_t tx_stream;
-} serial_stream_t;
-
 class Application {
 public:
-  static serial_stream_t &get_stream(serial_streams_ids stream_id){
-    return serial_streams[static_cast <size_t>(stream_id)];
+  static serial_stream_t &get_stream(serial_streams_ids stream_id) {
+    return serial_streams[static_cast<size_t>(stream_id)];
   }
 
-      static void Setup() {
+  static void Setup() {
+    create_streams();
+  }
+
+private:
+  inline static usb::cdc interface;
+  inline static unav::comm::serial_stream_t serial_streams[static_cast<size_t>(serial_streams_ids::COUNT)];
+
+  static void create_streams() {
     static StaticStreamBuffer_t cli_rx_streambuffer;
     static uint8_t cli_rx_buffer_storage[CLI_INPUT_BUFFER_SIZE];
     static StaticStreamBuffer_t cli_tx_streambuffer;
@@ -39,9 +44,7 @@ public:
     stream->tx_stream = xStreamBufferCreateStatic(sizeof(comm_tx_buffer_storage), 1, comm_tx_buffer_storage, &comm_tx_streambuffer);
   }
 
-private:
-  inline static serial_stream_t serial_streams[static_cast <size_t>(serial_streams_ids::COUNT)];
   Application(){};
-};
-} // namespace unav
+  };
+  }    // namespace unav
 #endif // APPLICATION_H

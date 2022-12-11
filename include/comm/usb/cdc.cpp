@@ -5,46 +5,46 @@
 #include "timers.h"
 #include <application.h>
 #include <cassert>
+#include <comm/usb/board_bsp.h>
 #include <stm32f4xx.h>
 #include <stm32f4xx_hal.h>
 #include <tusb.h>
 
-void init_usb_hw(void);
-
-namespace unav::comm {
+namespace unav::comm::usb {
 
 #define USBD_STACK_SIZE (3 * configMINIMAL_STACK_SIZE / 2) * (CFG_TUSB_DEBUG ? 2 : 1)
 #define CDC_STACK_SIZE configMINIMAL_STACK_SIZE
 
-class usb {
+class cdc : unav::comm::streaming_if {
 public:
-  void setup() {
+  void setup() override {
+    // initialise the BSP
     init_usb_hw();
+
     // Create a task for tinyusb device stack
     (void)xTaskCreateStatic(usb_device_task, "usbd", USBD_STACK_SIZE, NULL, configMAX_PRIORITIES - 1, usb_device_stack, &usb_device_taskdef);
     // Create CDC task
     (void)xTaskCreateStatic(cdc_task, "cdc", CDC_STACK_SIZE, NULL, configMAX_PRIORITIES - 2, cdc_stack, &cdc_taskdef);
   }
-  constexpr void set_stream(serial_stream_t stream, size_t index){
+
+  void link_stream(serial_stream_t stream, size_t index) {
     assert(index < CFG_TUD_CDC);
+    streams[index] = stream;
   }
 
 private:
   static serial_stream_t streams[CFG_TUD_CDC];
   // static task usb device
-  StackType_t usb_device_stack[USBD_STACK_SIZE];
-  StaticTask_t usb_device_taskdef;
+  static StackType_t usb_device_stack[USBD_STACK_SIZE];
+  static StaticTask_t usb_device_taskdef;
 
   // static task for cdc
-  StackType_t cdc_stack[CDC_STACK_SIZE];
-  StaticTask_t cdc_taskdef;
-
-  static portTASK_FUNCTION_PROTO(usb_device_task, pvParameters);
-  static portTASK_FUNCTION_PROTO(cdc_task, pvParameters);
+  static StackType_t cdc_stack[CDC_STACK_SIZE];
+  static StaticTask_t cdc_taskdef;
 
   // USB Device Driver task
   // This top level thread process all usb events and invoke callbacks
-  static portTASK_FUNCTION(usb_device_task, pvParameters) {
+  static void usb_device_task(void *pvParameters) {
     (void)pvParameters;
 
     // init device stack on configured roothub port
@@ -62,8 +62,8 @@ private:
   //--------------------------------------------------------------------+
   // USB CDC
   //--------------------------------------------------------------------+
-  static void cdc_task(void *params) {
-    (void)params;
+  static void cdc_task(void *pvParameters) {
+    (void)pvParameters;
 
     // RTOS forever loop
     while (1) {
@@ -90,14 +90,7 @@ private:
     }
   }
 };
-} // namespace unav::comm
-
-//--------------------------------------------------------------------+
-// Forward USB interrupt events to TinyUSB IRQ Handler
-//--------------------------------------------------------------------+
-extern "C" static void OTG_FS_IRQHandler(void) {
-  tud_int_handler(0);
-}
+} // namespace unav::comm::usb
 
 // // Invoked when device is mounted
 // void tud_mount_cb(void) {
