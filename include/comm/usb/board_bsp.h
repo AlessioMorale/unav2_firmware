@@ -1,4 +1,6 @@
-#include "FreeRTOS.h"
+#pragma once
+#ifndef BOARD_BSP_H
+#define BOARD_BSP_H
 #include <stm32f4xx.h>
 #include <stm32f4xx_hal.h>
 #include <tusb.h>
@@ -6,14 +8,14 @@
 namespace unav::comm::usb {
 
 namespace _private {
-inline static void board_vbus_sense_init(void) {
+inline static void board_vbus_sense_init() {
   // Blackpill doens't use VBUS sense (B device) explicitly disable it
   USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
   USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_VBUSBSEN;
   USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_VBUSASEN;
 }
 
-inline static void init_usb_pins(void) {
+inline static void init_usb_pins() {
 
   // Enable USB OTG clock
   __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
@@ -46,3 +48,4 @@ void OTG_FS_IRQHandler(void) {
 }
 
 }
+#endif /* BOARD_BSP_H */

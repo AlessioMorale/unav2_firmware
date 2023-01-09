@@ -1,22 +1,20 @@
 #include <FreeRTOS.h>
 #include <stm32f4xx.h>
 #include <stm32f4xx_hal.h>
-#include <task.h>
 #include <timing.h>
 #include <application.h>
 
 void SystemClock_Config(void);
 void Error_Handler(void);
 extern "C" HAL_StatusTypeDef HAL_Init();
-#define ledSTACK_SIZE configMINIMAL_STACK_SIZE
 
 extern "C" int main() {
   SystemClock_Config();
   HAL_Init();
 
   timing_Init();
-
-  unav::Application::Setup();
+  unav::Application application;
+  application.setup();
   vTaskStartScheduler();
 
   return 0;
