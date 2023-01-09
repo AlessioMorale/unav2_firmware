@@ -1,0 +1,15 @@
+InlayHints:
+  Enabled: Yes
+  ParameterNames: Yes
+  DeducedTypes: Yes
+CompileFlags:                     # Tweak the parse settings
+  Add: [-Wall, -xc++, -std=c++17]             # treat all files as C++, enable more warnings
+  Remove: [-mthumb-interwork]
+  Compiler: gcc               # Change argv[0] of compile flags to `clang++`
+
+Diagnostics:
+  UnusedIncludes: Strict
+  ClangTidy:
+    CheckOptions:
+      readability-identifier-naming.VariableCase: CamelCase
+    Add: modernize*

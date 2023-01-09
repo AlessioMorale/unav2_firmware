@@ -2,25 +2,15 @@
 	"version": "2.0.0",
 	"tasks": [
 		{
-			"type": "script",
-			"scriptType": "bash",
-			"path": "",
-			"fileName": "build.sh",
-			"scriptFile": true,
-			"script": "sh",
-			"target": "sh",
-			"uri": {
-				"$mid": 1,
-				"fsPath": "${workspaceFolder}//build.sh",
-				"external": "file://${workspaceFolder}/build.sh",
-				"path": "${workspaceFolder}//build.sh",
-				"scheme": "file"
-			},
-			"takesArgs": false,
-			"problemMatcher": [
-				"$msCompile"
+			"type": "cmake",
+			"label": "CMake: build",
+			"command": "build",
+			"targets": [
+				"all"
 			],
-			"label": "Build all"
+			"group": "build",
+			"problemMatcher": [ "$gcc" ],
+			"detail": "CMake template build task"
 		}
 	]
 }
