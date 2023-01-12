@@ -8,24 +8,27 @@
 #include <string>
 #include <wrappers/taskpriority.h>
 
-namespace freertos::wrappers::staticalloc {
+namespace freertos::wrappers {
 
+using thread_delegate = etl::delegate<void()>;
+
+namespace staticalloc {
 extern "C" {
 inline static void BaseThreadWrapper(void *argument) {
-  auto threadFunction = static_cast<etl::delegate<void(void)> *>(const_cast<void *>(argument));
+  auto threadFunction = static_cast<freertos::wrappers::thread_delegate *>(const_cast<void *>(argument));
   (*threadFunction)();
 }
 }
 
 template <size_t stackSize> class Thread {
 public:
-  Thread(const etl::delegate<void(void)> &threadFunction, freertos::wrappers::TaskPriority priority, const std::string name)
+  Thread(const freertos::wrappers::thread_delegate &threadFunction, freertos::wrappers::TaskPriority priority, const std::string name)
       : Name{name}, Priority(priority), _threadFunction{threadFunction} {
   }
-  
+
   void Create() {
-    (void)xTaskCreateStatic(BaseThreadWrapper, Name.c_str(), stackSize, static_cast<void *>(&this->_threadFunction), 
-    static_cast<const UBaseType_t>(Priority), _thread_stack, &_thread_taskdef);
+    (void)xTaskCreateStatic(BaseThreadWrapper, Name.c_str(), stackSize, static_cast<void *>(&this->_threadFunction), static_cast<const UBaseType_t>(Priority),
+                            _thread_stack, &_thread_taskdef);
   }
 
   virtual ~Thread() = default;
@@ -33,10 +36,10 @@ public:
   const freertos::wrappers::TaskPriority Priority;
 
 protected:
-  etl::delegate<void()> _threadFunction;
+  freertos::wrappers::thread_delegate _threadFunction;
   StackType_t _thread_stack[stackSize];
   StaticTask_t _thread_taskdef;
 };
-} // namespace freertos::wrappers::staticalloc
-
+} // namespace staticalloc
+} // namespace freertos::wrappers
 #endif /* THREAD_H */

@@ -27,9 +27,9 @@ class CDC : public StreamProvider {
 
 public:
   CDC()
-      : usb_dev_delegate{etl::delegate<void()>::create<CDC, &CDC::usb_device_task_function>(*this)}, usb_device_task{usb_dev_delegate, TaskPriority::Highest,
-                                                                                                                     "usb_dev"},
-        usb_cdc_delegate{etl::delegate<void()>::create<CDC, &CDC::cdc_task_function>(*this)}, usb_cdc_task{usb_cdc_delegate, TaskPriority::High, "usb_cdc"} {
+      : usb_dev_delegate{thread_delegate::create<CDC, &CDC::usb_device_task_function>(*this)}, usb_device_task{usb_dev_delegate, TaskPriority::Highest,
+                                                                                                               "usb_dev"},
+        usb_cdc_delegate{thread_delegate::create<CDC, &CDC::cdc_task_function>(*this)}, usb_cdc_task{usb_cdc_delegate, TaskPriority::High, "usb_cdc"} {
   }
 
   void setup() {
@@ -42,18 +42,18 @@ public:
     usb_cdc_task.Create();
   }
 
-  void link_stream(bidirectional_stream_t &stream, size_t index) override {
+  void link_stream(bidirectional_stream &stream, size_t index) override {
     // assert(index < CFG_TUD_CDC);
     streams[index] = &stream;
   }
 
 private:
-  const etl::delegate<void()> usb_dev_delegate;
+  const thread_delegate usb_dev_delegate;
   Thread<USBD_STACK_SIZE> usb_device_task;
-  const etl::delegate<void()> usb_cdc_delegate;
+  const thread_delegate usb_cdc_delegate;
   Thread<CDC_STACK_SIZE> usb_cdc_task;
 
-  std::array<bidirectional_stream_t *, CFG_TUD_CDC> streams = {nullptr};
+  std::array<bidirectional_stream *, CFG_TUD_CDC> streams = {nullptr};
 
   // USB Device Driver task
   // This top level thread process all usb events and invoke callbacks
@@ -82,17 +82,19 @@ private:
 
         // There are data available
         size_t count = 0;
-        while (serial_stream && serial_stream->rx_stream && !(serial_stream->rx_stream->available() < block_len) && (count = tud_cdc_n_available(itf)) != 0) {
+        while (serial_stream && !(serial_stream->get_rx_stream()->available() < block_len) && (count = tud_cdc_n_available(itf)) != 0) {
           // There are data available
-          auto write_buffer = serial_stream->rx_stream->write_reserve(count);
+          auto rx_stream = serial_stream->get_rx_stream();
+          auto write_buffer = rx_stream->write_reserve(count);
           (void)tud_cdc_n_read(itf, write_buffer.data(), write_buffer.size_bytes());
-          serial_stream->rx_stream->write_commit(write_buffer);
+          rx_stream->write_commit(write_buffer);
         }
 
-        while (serial_stream && serial_stream->tx_stream && !serial_stream->tx_stream->empty()) {
-          auto read_buffer = serial_stream->tx_stream->read_reserve(block_len);
+        while (serial_stream && !serial_stream->get_tx_stream()->empty()) {
+          auto tx_stream = serial_stream->get_tx_stream();
+          auto read_buffer = tx_stream->read_reserve(block_len);
           tud_cdc_n_write(itf, read_buffer.data(), read_buffer.size_bytes());
-          serial_stream->tx_stream->read_commit(read_buffer);
+          tx_stream->read_commit(read_buffer);
           tud_cdc_n_write_flush(itf);
         }
       }
