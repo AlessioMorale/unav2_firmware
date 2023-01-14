@@ -16,9 +16,10 @@
             "device": "STM32F407VE",
             "interface": "swd",
             "runToMain": true, // else it starts at reset handler - not interested
-            "preLaunchTask": "Build all", // configured in tasks.json
+            "preLaunchTask": "CMake: build", // configured in tasks.json
             // "preLaunchCommands": ["Build all"], // you can execute command instead of task
             "svdFile": "", // Include svd to watch device peripherals
+            "rtos": "FreeRTOS",
             "swoConfig": {
                 "enabled": true,
                 "cpuFrequency": 160000000,
@@ -29,7 +30,7 @@
                         "label": "ITM port 0 output",
                         "type": "console",
                         "port": 0,
-                        "sh9owOnStartup": true,
+                        "showOnStartup": false,
                         "encoding": "ascii"
                     }
                 ]
@@ -46,9 +47,9 @@
             "configFiles": [ "${workspaceRoot}/tools/openocd.cfg" ],
             "device": "STM32F407VG",
             "interface": "swd",
-            "preLaunchTask": "Build all", // configured in tasks.json
-            // "preLaunchCommands": ["Build all"], // you can execute command instead of task
+            "preLaunchTask": "CMake: build", // configured in tasks.json
             "svdFile": "", // Include svd to watch device peripherals
+            "rtos": "FreeRTOS",
             "swoConfig": {
                 "enabled": true,
                 "cpuFrequency": 160000000,
@@ -59,7 +60,7 @@
                         "label": "ITM port 0 output",
                         "type": "console",
                         "port": 0,
-                        "showOnStartup": true,
+                        "showOnStartup": false,
                         "encoding": "ascii"
                     }
                 ]

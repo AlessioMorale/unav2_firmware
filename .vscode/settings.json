@@ -31,15 +31,13 @@
         "lib/tinyusb/lib/networking"
     ],
     "C_Cpp.files.exclude": {
-        
-
         "**/.vscode": true,
         "**/.vs": true
     },
- 
     "cmake.configureArgs": [
         "-DCMAKE_VERBOSE_MAKEFILE=true",
         "-DCMAKE_BUILD_TYPE=Debug",
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
-    ]
+    ],
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
 }
