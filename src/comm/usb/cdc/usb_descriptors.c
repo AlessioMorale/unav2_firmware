@@ -54,8 +54,7 @@ tusb_desc_device_t const desc_device = {.bLength = sizeof(tusb_desc_device_t),
 uint8_t const *tud_descriptor_device_cb(void) {
   return (uint8_t const *)&desc_device;
 }
-#define UNUSED_EP_NUM_OUT 0x0F
-#define UNUSED_EP_NUM_IN 0x8F
+
 //--------------------------------------------------------------------+
 // Configuration Descriptor
 //--------------------------------------------------------------------+
@@ -69,7 +68,7 @@ enum { ITF_NUM_CDC_0 = 0, ITF_NUM_CDC_0_DATA, ITF_NUM_CDC_1_DATA, ITF_NUM_CDC_1,
 
 #define EPNUM_CDC_1_OUT 0x03
 #define EPNUM_CDC_1_IN 0x83
-#define EPNUM_CDC_1_NOTIF UNUSED_EP_NUM_IN // This is non existent Endpoint. Protocol need to specify one we are not going to use notif for cdc1
+#define EPNUM_CDC_1_NOTIF 0x84 // This is non existent Endpoint. Protocol need to specify one we are not going to use notif for cdc1
 
 uint8_t const desc_fs_configuration[] = {
     // Config number, interface count, string index, total length, attribute, power in mA

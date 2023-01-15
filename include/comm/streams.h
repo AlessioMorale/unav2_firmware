@@ -10,7 +10,8 @@ namespace unav::comm {
 
 using stream = etl::ibip_buffer_spsc_atomic<uint8_t, etl::memory_model::MEMORY_MODEL_MEDIUM>;
 
-template <const size_t SIZE> class stream_impl : public etl::bip_buffer_spsc_atomic<uint8_t, SIZE, etl::memory_model::MEMORY_MODEL_MEDIUM> {};
+template <const size_t SIZE>
+class stream_impl : public etl::bip_buffer_spsc_atomic<uint8_t, SIZE, etl::memory_model::MEMORY_MODEL_MEDIUM> {};
 
 struct bidirectional_stream {
   virtual auto get_rx_stream() -> stream * = 0;
@@ -30,7 +31,7 @@ template <const size_t RX_SIZE, const size_t TX_SIZE> struct bidirectional_strea
   }
 };
 
-class StreamProvider {
+class StreamDataProvider {
 public:
   virtual void link_stream(bidirectional_stream &stream, size_t index = 0) = 0;
 };

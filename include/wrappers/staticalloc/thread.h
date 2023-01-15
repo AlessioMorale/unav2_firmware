@@ -20,24 +20,24 @@ inline static void BaseThreadWrapper(void *argument) {
 }
 }
 
-template <size_t stackSize> class Thread {
+template <size_t stack_size> class Thread {
 public:
-  Thread(const freertos::wrappers::thread_delegate &threadFunction, freertos::wrappers::TaskPriority priority, const std::string name)
+  Thread(const freertos::wrappers::thread_delegate &threadFunction, freertos::wrappers::TaskPriority priority, const std::string &name)
       : Name{name}, Priority(priority), _threadFunction{threadFunction} {
   }
 
-  void Create() {
-    (void)xTaskCreateStatic(BaseThreadWrapper, Name.c_str(), stackSize, static_cast<void *>(&this->_threadFunction), static_cast<const UBaseType_t>(Priority),
+  void create() {
+    (void)xTaskCreateStatic(BaseThreadWrapper, Name.c_str(), stack_size, static_cast<void *>(&this->_threadFunction), static_cast<const UBaseType_t>(Priority),
                             _thread_stack, &_thread_taskdef);
   }
 
   virtual ~Thread() = default;
-  const std::string &Name;
+  const std::string Name;
   const freertos::wrappers::TaskPriority Priority;
 
 protected:
   freertos::wrappers::thread_delegate _threadFunction;
-  StackType_t _thread_stack[stackSize];
+  StackType_t _thread_stack[stack_size];
   StaticTask_t _thread_taskdef;
 };
 } // namespace staticalloc
