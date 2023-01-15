@@ -5,8 +5,8 @@
 #include "tusb_config.h"
 #include <application.h>
 #include <array>
+#include <bsp/board.h>
 #include <comm/streams.h>
-#include <comm/usb/board_bsp.h>
 #include <cstddef>
 #include <etl/algorithm.h>
 #include <stm32f4xx.h>
@@ -34,7 +34,7 @@ public:
 
   void setup() {
     // initialise the BSP
-    init_usb_hw();
+    unav::bsp::Board::instance.init_usb_hw();
 
     // Create a task for tinyusb device stack
     usb_device_task.Create();

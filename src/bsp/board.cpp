@@ -1,21 +1,37 @@
-#pragma once
-#ifndef BOARD_BSP_H
-#define BOARD_BSP_H
+#include <bsp/board.h>
 #include <stm32f4xx.h>
 #include <stm32f4xx_hal.h>
 #include <tusb.h>
 
-namespace unav::comm::usb {
+namespace unav::bsp {
+Board Board::instance;
+void Board::init_gpio() {
+  __HAL_RCC_GPIOA_CLK_ENABLE();
+  __HAL_RCC_GPIOB_CLK_ENABLE();
+  __HAL_RCC_GPIOC_CLK_ENABLE();
+  __HAL_RCC_GPIOD_CLK_ENABLE();
+  __HAL_RCC_GPIOE_CLK_ENABLE();
+}
+void Board::init_usb_hw() {
+  init_usb_pins();
+  board_vbus_sense_init();
+}
 
-namespace _private {
-inline static void board_vbus_sense_init() {
-  // Blackpill doens't use VBUS sense (B device) explicitly disable it
+void Board::init_leds(){
+
+  for(auto gpio : leds)
+  {
+    gpio.init();
+  }
+}
+
+void Board::board_vbus_sense_init() {
   USB_OTG_FS->GCCFG |= USB_OTG_GCCFG_NOVBUSSENS;
   USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_VBUSBSEN;
   USB_OTG_FS->GCCFG &= ~USB_OTG_GCCFG_VBUSASEN;
 }
 
-inline static void init_usb_pins() {
+void Board::init_usb_pins() {
 
   // Enable USB OTG clock
   __HAL_RCC_USB_OTG_FS_CLK_ENABLE();
@@ -29,14 +45,8 @@ inline static void init_usb_pins() {
 
   HAL_GPIO_Init(GPIOA, &gpio_out);
 }
-}
 
-void init_usb_hw() {
-  _private::board_vbus_sense_init();
-  _private::init_usb_pins();
-}
-
-} // namespace unav::comm::usb
+} // namespace unav::bsp
 
 //--------------------------------------------------------------------+
 // Forward USB interrupt events to TinyUSB IRQ Handler
@@ -44,8 +54,6 @@ void init_usb_hw() {
 extern "C" {
 
 void OTG_FS_IRQHandler(void) {
-  tud_int_handler(0);
+  tud_int_handler(BOARD_TUD_RHPORT);
 }
-
 }
-#endif /* BOARD_BSP_H */
