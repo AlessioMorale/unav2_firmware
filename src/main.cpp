@@ -12,7 +12,7 @@ extern "C" int main() {
   SystemClock_Config();
   HAL_Init();
 
-  timing_Init();
+  unav::Timing::init();
   unav::Application application;
   application.setup();
   vTaskStartScheduler();

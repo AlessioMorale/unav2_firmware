@@ -4,7 +4,7 @@
 #include <bsp/board.h>
 #include <comm/usb/cdc.h>
 #include <cstdint>
-#include <modules/climodule.h>
+#include <modules/cli/module.h>
 namespace unav {
 enum class serial_streams_ids : size_t { COMM_SERIAL, CLI_SERIAL, COUNT };
 

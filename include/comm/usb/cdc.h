@@ -28,10 +28,10 @@ class CDC : public StreamDataProvider {
 public:
   CDC()
       : usb_dev_delegate{thread_delegate::create<CDC, &CDC::usb_device_task_function>(*this)},
-        usb_device_task{usb_dev_delegate, TaskPriority::Highest, "usb_dev"},
+        usb_device_task{usb_dev_delegate, TaskPriority::Highest, "usb/dev"},
         usb_cdc_delegate{thread_delegate::create<CDC, &CDC::cdc_task_function>(*this)}, usb_cdc_task{usb_cdc_delegate,
                                                                                                      TaskPriority::High,
-                                                                                                     "usb_cdc"} {
+                                                                                                     "usb/cdc"} {
   }
 
   /// @brief setup the cdc stack

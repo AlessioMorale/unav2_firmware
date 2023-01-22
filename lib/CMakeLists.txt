@@ -6,3 +6,4 @@ include("nanopb.cmake")
 
 add_subdirectory("FreeRTOS-Kernel") 
 include("tinyusb.cmake")
+include("embedded_cli.cmake")

@@ -1,10 +1,12 @@
 #include "FreeRTOS.h"
 #include "task.h"
 #include <timing.h>
-
+extern "C" {
 /* GetIdleTaskMemory & GetTimerTaskMemory prototypes (linked to static allocation support) */
-void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize);
-void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize);
+void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer,
+                                   uint32_t *pulIdleTaskStackSize);
+void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer,
+                                    uint32_t *pulTimerTaskStackSize);
 
 /* Hook prototypes */
 void configureTimerForRunTimeStats(void);
@@ -16,10 +18,11 @@ __weak void configureTimerForRunTimeStats(void) {
 }
 
 __weak unsigned long getRunTimeCounterValue(void) {
-  return timing_getUs();
+  return unav::Timing::get_us();
 }
 
-void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer, uint32_t *pulIdleTaskStackSize) {
+void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackType_t **ppxIdleTaskStackBuffer,
+                                   uint32_t *pulIdleTaskStackSize) {
   static StaticTask_t xIdleTaskTCBBuffer;
   static StackType_t xIdleStack[configMINIMAL_STACK_SIZE];
   *ppxIdleTaskTCBBuffer = &xIdleTaskTCBBuffer;
@@ -27,7 +30,8 @@ void vApplicationGetIdleTaskMemory(StaticTask_t **ppxIdleTaskTCBBuffer, StackTyp
   *pulIdleTaskStackSize = configMINIMAL_STACK_SIZE;
 }
 
-void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer, uint32_t *pulTimerTaskStackSize) {
+void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackType_t **ppxTimerTaskStackBuffer,
+                                    uint32_t *pulTimerTaskStackSize) {
   static StaticTask_t xTimerTaskTCB;
   static StackType_t uxTimerTaskStack[configTIMER_TASK_STACK_DEPTH];
 
@@ -36,11 +40,11 @@ void vApplicationGetTimerTaskMemory(StaticTask_t **ppxTimerTaskTCBBuffer, StackT
   *pulTimerTaskStackSize = configTIMER_TASK_STACK_DEPTH;
 }
 
-void vApplicationStackOverflowHook( TaskHandle_t xTask, char * pcTaskName ) {
+void vApplicationStackOverflowHook(TaskHandle_t xTask, char *pcTaskName) {
   (void)pcTaskName;
   (void)xTask;
 }
 
-void vApplicationIdleHook(){
-
+void vApplicationIdleHook() {
+}
 }

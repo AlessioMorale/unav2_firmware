@@ -22,3 +22,6 @@
 [submodule "lib/FreeRTOS-Kernel"]
 	path = lib/FreeRTOS-Kernel
 	url = https://github.com/FreeRTOS/FreeRTOS-Kernel.git
+[submodule "lib/embedded-cli"]
+	path = lib/embedded-cli
+	url = https://github.com/funbiscuit/embedded-cli.git
