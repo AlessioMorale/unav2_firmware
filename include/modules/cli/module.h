@@ -2,7 +2,7 @@
 #define CLIMODULE_H
 #include "bsp/board.h"
 #include "comm/streams.h"
-#include "wrappers/staticalloc/thread.h"
+#include "wrappers/thread.h"
 #include <cstddef>
 #include <cstdint>
 #include "cli_commands.h"
@@ -16,7 +16,7 @@ class CLIModule {
 public:
   CLIModule()
       : cli_delegate{freertos::wrappers::thread_delegate::create<CLIModule, &CLIModule::cli_task_function>(*this)}, //
-        cli_task{cli_delegate, TaskPriority::Low, "cli"} {
+        cli_task{cli_delegate, ThreadPriority::Low, "cli"} {
   }
 
   void setup() {
@@ -29,7 +29,7 @@ public:
 
 private:
   freertos::wrappers::thread_delegate cli_delegate;
-  freertos::wrappers::staticalloc::Thread<CLI_STACK_SIZE> cli_task;
+  freertos::wrappers::Thread<CLI_STACK_SIZE> cli_task;
   comm::bidirectional_stream_impl<CLI_RX_BUFFER, CLI_TX_BUFFER> stream;
   cli::commands commands{stream};
 

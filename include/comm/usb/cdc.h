@@ -13,10 +13,9 @@
 #include <stm32f4xx_hal.h>
 #include <string>
 #include <tusb.h>
-#include <wrappers/staticalloc/thread.h>
+#include <wrappers/thread.h>
 
 using namespace freertos::wrappers;
-using namespace freertos::wrappers::staticalloc;
 
 namespace unav::comm::usb {
 
@@ -28,10 +27,9 @@ class CDC : public StreamDataProvider {
 public:
   CDC()
       : usb_dev_delegate{thread_delegate::create<CDC, &CDC::usb_device_task_function>(*this)},
-        usb_device_task{usb_dev_delegate, TaskPriority::Highest, "usb/dev"},
-        usb_cdc_delegate{thread_delegate::create<CDC, &CDC::cdc_task_function>(*this)}, usb_cdc_task{usb_cdc_delegate,
-                                                                                                     TaskPriority::High,
-                                                                                                     "usb/cdc"} {
+        usb_device_task{usb_dev_delegate, ThreadPriority::Highest, "usb/dev"},
+        usb_cdc_delegate{thread_delegate::create<CDC, &CDC::cdc_task_function>(*this)},
+        usb_cdc_task{usb_cdc_delegate, ThreadPriority::High, "usb/cdc"} {
   }
 
   /// @brief setup the cdc stack
