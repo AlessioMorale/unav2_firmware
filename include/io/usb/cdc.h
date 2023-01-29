@@ -6,7 +6,7 @@
 #include <application.h>
 #include <array>
 #include <bsp/board.h>
-#include <comm/streams.h>
+#include <io/stream_provider.h>
 #include <cstddef>
 #include <etl/algorithm.h>
 #include <stm32f4xx.h>
@@ -17,12 +17,12 @@
 
 using namespace freertos::wrappers;
 
-namespace unav::comm::usb {
+namespace unav::io::usb {
 
 #define USBD_STACK_SIZE (3 * configMINIMAL_STACK_SIZE / 2) * (CFG_TUSB_DEBUG ? 2 : 1)
 #define CDC_STACK_SIZE configMINIMAL_STACK_SIZE
 
-class CDC : public StreamDataProvider {
+class CDC : public bidirectional_stream_data_provider {
 
 public:
   CDC()
@@ -75,26 +75,34 @@ private:
   // USB CDC
   //--------------------------------------------------------------------+
   inline void cdc_task_function() {
-    const size_t block_len = 64;
+    // const size_t block_len = 64;
     // RTOS forever loop
     while (true) {
       for (auto itf = 0; itf < CFG_TUD_CDC; itf++) {
         auto serial_stream = this->streams[itf];
         if (serial_stream) {
           size_t count = 0;
-          while ((count = tud_cdc_n_available(itf)) > 0 && (serial_stream->get_rx_stream()->available() >= block_len)) {
-            auto rx_stream = serial_stream->get_rx_stream();
-            auto write_buffer = rx_stream->write_reserve(count);
-            (void)tud_cdc_n_read(itf, write_buffer.data(), write_buffer.size_bytes());
-            rx_stream->write_commit(write_buffer);
+          while ((count = tud_cdc_n_available(itf)) > 0 && !serial_stream->rx_stream()->full()) {
+            auto rx_stream = serial_stream->rx_stream();
+            memory_block block;
+            if (!rx_stream->get_block(block, count)) {
+              continue;
+            }
+            (void)tud_cdc_n_read(itf, block.data(), block.size_bytes());
+            rx_stream->send(block, 0);
           }
 
-          while (!serial_stream->get_tx_stream()->empty() && (count = tud_cdc_n_write_available(itf)) > 0) {
-            auto tx_stream = serial_stream->get_tx_stream();
-            auto read_buffer = tx_stream->read_reserve(etl::min(block_len, count));
-            tud_cdc_n_write(itf, read_buffer.data(), read_buffer.size_bytes());
-            tx_stream->read_commit(read_buffer);
-            tud_cdc_n_write_flush(itf);
+          while (!serial_stream->tx_stream()->empty() && (count = tud_cdc_n_write_available(itf)) > 0) {
+            auto tx_stream = serial_stream->tx_stream();
+            memory_block block;
+            if(tx_stream->receive(block, 0)){
+              size_t sent = 0;
+              while(sent < block.size_bytes()){
+                sent += tud_cdc_n_write(itf, block.data() + sent, block.size_bytes() - sent);
+                //tud_cdc_n_write_flush(itf);
+              }
+              tx_stream->release(block);
+            }
           }
         }
       }

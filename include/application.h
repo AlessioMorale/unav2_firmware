@@ -2,7 +2,7 @@
 #ifndef APPLICATION_H
 #define APPLICATION_H
 #include <bsp/board.h>
-#include <comm/usb/cdc.h>
+#include <io/usb/cdc.h>
 #include <cstdint>
 #include <modules/cli/module.h>
 namespace unav {
@@ -24,7 +24,7 @@ public:
   Application() = default;
 
 private:
-  inline static unav::comm::usb::CDC serial_interface;
+  inline static unav::io::usb::CDC serial_interface;
   inline static unav::modules::CLIModule cli_module;
 };
 } // namespace unav

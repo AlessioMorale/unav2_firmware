@@ -9,37 +9,37 @@ const char *const str_ps_header =
     "Task          State  Priority  Stack	#\r\n************************************************\r\n";
 const char *const str_perf_header =
     "Task          State  Priority  Stack	#\r\n************************************************\r\n";
-etl::span<uint8_t> get_buffer(unav::modules::cli::commands *cmd, size_t size) {
-  return cmd->get_write_buffer(size);
-}
 
-char *to_char_buffer(etl::span<uint8_t> buffer) {
+char *to_char_buffer(unav::io::memory_block &buffer) {
   return static_cast<char *>(static_cast<void *>(buffer.data()));
 }
 
 void onps(EmbeddedCli *cli, char *args, void *context) {
   auto cmd = static_cast<unav::modules::cli::commands *>(cli->appContext);
-  auto buffer = get_buffer(cmd, 400);
-  auto char_buffer = to_char_buffer(buffer);
+  unav::io::memory_block block;
+  cmd->get_write_buffer(block, 400);
+
+  auto char_buffer = to_char_buffer(block);
 
   strcpy(char_buffer, str_ps_header);
 
   vTaskList(char_buffer + strlen(str_ps_header));
 
   auto len = strlen(char_buffer);
-  cmd->commit_write_buffer(buffer, len);
+  cmd->send(block, len);
 }
 
 void onperf(EmbeddedCli *cli, char *args, void *context) {
   auto cmd = static_cast<unav::modules::cli::commands *>(cli->appContext);
-  auto buffer = get_buffer(cmd, 400);
-  auto char_buffer = to_char_buffer(buffer);
+  unav::io::memory_block block;
+  cmd->get_write_buffer(block, 400);
+
+  auto char_buffer = to_char_buffer(block);
 
   strcpy(char_buffer, str_perf_header);
   vTaskGetRunTimeStats(char_buffer + strlen(str_perf_header));
-
   auto len = strlen(char_buffer);
-  cmd->commit_write_buffer(buffer, len);
+  cmd->send(block, len);
 }
 
 void task_list_add(EmbeddedCli *cli) {

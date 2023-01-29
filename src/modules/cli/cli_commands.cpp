@@ -21,23 +21,23 @@ void commands::process() {
   embeddedCliProcess(cli);
 }
 
-etl::span<uint8_t> commands::get_write_buffer(size_t len) {
-  auto tx_s = stream.get_tx_stream();
-  return tx_s->write_reserve(len);
-}
-
-void commands::commit_write_buffer(etl::span<uint8_t> buffer, size_t write_size) {
-  auto tx_s = stream.get_tx_stream();
-  if (write_size != SIZE_MAX) {
-    tx_s->write_commit(etl::span<uint8_t>(buffer.begin(), buffer.begin() + write_size));
-  } else {
-    tx_s->write_commit(buffer);
+void commands::get_write_buffer(io::memory_block &block, size_t len) {
+  auto tx_s = stream.tx_stream();
+  while (!tx_s->get_block(block, len)) {
+    vTaskDelay(1);
   }
 }
+
+void commands::send(io::memory_block &block, size_t write_size) {
+  auto tx_s = stream.tx_stream();
+  tx_s->send(block, write_size, Timing::MAX_DELAY);
+}
+
 void commands::write_string(const std::string &str) {
-  auto buffer = get_write_buffer(str.size());
-  std::copy(str.begin(), str.end(), buffer.begin());
-  commit_write_buffer(buffer);
+  io::memory_block block;
+  get_write_buffer(block, str.size());
+  std::copy(str.begin(), str.end(), block.data());
+  send(block);
 }
 
 } // namespace unav::modules::cli
@@ -45,8 +45,7 @@ void commands::write_string(const std::string &str) {
 extern "C" {
 void cli_write_char(EmbeddedCli *cli, char c) {
   auto context = static_cast<unav::modules::cli::commands *>(cli->appContext);
-  auto write_buffer = context->get_write_buffer(1);
-  write_buffer[0] = c;
-  context->commit_write_buffer(write_buffer);
+  std::string s{c};
+  context->write_string(std::string{c});
 }
 }
