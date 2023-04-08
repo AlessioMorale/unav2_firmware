@@ -1,0 +1,7 @@
+[
+{
+    "name": "GCC ARM none eabi",
+    "toolchainFile": "${workspaceRoot}/CMake/GNU-ARM-Toolchain.cmake"
+}
+
+]

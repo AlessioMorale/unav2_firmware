@@ -61,7 +61,27 @@
         "stdexcept": "cpp",
         "stop_token": "cpp",
         "streambuf": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "queue_w.h": "c",
+        "timing.h": "cpp",
+        "stddef.h": "c",
+        "assert.h": "c",
+        "fixed_sized_memory_block_allocator.h": "c",
+        "memory_model.h": "c",
+        "stream.h": "c",
+        "memory.h": "c",
+        "span.h": "c",
+        "regex": "cpp",
+        "bitset": "cpp",
+        "map": "cpp",
+        "set": "cpp",
+        "fstream": "cpp",
+        "future": "cpp",
+        "iomanip": "cpp",
+        "iostream": "cpp",
+        "istream": "cpp",
+        "sstream": "cpp",
+        "variant": "cpp"
     },
     "files.autoSave": "onFocusChange",
     "C_Cpp.autocompleteAddParentheses": true,
@@ -69,7 +89,7 @@
     "C_Cpp.default.cStandard": "c17",
     "C_Cpp.default.mergeConfigurations": true,
     "C_Cpp.default.includePath": [
-        "include",
+        "app/include",
         "lib/FreeRTOS-Kernel/include",
         "lib/embedded-cli/lib/include",
         "lib/FreeRTOS-Kernel/portable/GCC/ARM_CM4F",
@@ -81,7 +101,8 @@
         "lib/lwip/src/include",
         "lib/lwip/src/include/ipv4",
         "lib/lwip/src/include/lwip/apps",
-        "lib/tinyusb/lib/networking"
+        "lib/tinyusb/lib/networking",
+        "build/transpiled"
     ],
     "C_Cpp.files.exclude": {
         "**/.vscode": true,
@@ -92,5 +113,8 @@
         "-DCMAKE_BUILD_TYPE=Debug",
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
     ],
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.errorSquiggles": "disabled",
+    "cmake.configureOnOpen": false,
+    "mcu-debug.rtos-views.showRTOS": true
 }
