@@ -61,7 +61,16 @@
         "stdexcept": "cpp",
         "stop_token": "cpp",
         "streambuf": "cpp",
-        "thread": "cpp"
+        "thread": "cpp",
+        "queue_w.h": "c",
+        "timing.h": "cpp",
+        "stddef.h": "c",
+        "assert.h": "c",
+        "fixed_sized_memory_block_allocator.h": "c",
+        "memory_model.h": "c",
+        "stream.h": "c",
+        "memory.h": "c",
+        "span.h": "c"
     },
     "files.autoSave": "onFocusChange",
     "C_Cpp.autocompleteAddParentheses": true,
@@ -92,5 +101,6 @@
         "-DCMAKE_BUILD_TYPE=Debug",
         "-DCMAKE_EXPORT_COMPILE_COMMANDS=1"
     ],
-    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools"
+    "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+    "C_Cpp.errorSquiggles": "disabled"
 }

@@ -1,8 +1,8 @@
 #ifndef TIMING_H
 #define TIMING_H
 #pragma once
+#include <etl/limits.h>
 #include "stm32f4xx_hal.h"
-#include <limits>
 namespace unav {
 
 typedef uint32_t tickstime_t;
@@ -14,7 +14,7 @@ struct Time {
 
 class Timing {
 public:
-  static const uint32_t MAX_DELAY = std::numeric_limits<uint32_t>::max();
+  static const uint32_t MAX_DELAY = etl::numeric_limits<uint32_t>::max();
 
   static void init() {
     uint32_t hclk = HAL_RCC_GetHCLKFreq();

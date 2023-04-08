@@ -47,10 +47,20 @@
 #define USB_VID 0x1209
 #define USB_PID 0xA770
 #define USB_BCD 0x0200
+#define DEVICE_BCD 0x0100
+
+#define STRING_DESC_MANUFACTURER 1
 #define USB_DESC_MANUFACTURER "PizzaRobotics"
+#define STRING_DESC_PRODUCT 2
 #define USB_DESC_PRODUCT "uNav"
+#define STRING_DESC_SERIAL 3
 #define USB_DESC_SERIAL "123456"
-#define USB_DESC_CDC_INTERFACE "Serial control interface"
+#define STRING_DESC_CDC_INTERFACE 4
+#define USB_DESC_CDC_INTERFACE "uNav Serial control"
+#define STRING_DESC_GS_USB_INTERFACE 5
+#define USB_DESC_GS_USB_INTERFACE "uNav GS_USB"
+#define STRING_DESC_DFU_INTERFACE 6
+#define USB_DESC_DFU_INTERFACE "uNav DFU"
 
  // defined by board.mk
 #define CFG_TUSB_MCU OPT_MCU_STM32F4
@@ -93,18 +103,23 @@
 #endif
 
 //------------- CLASS -------------//
-#define CFG_TUD_CDC               2
+#define CFG_TUD_CDC               0
 #define CFG_TUD_MSC               0
 #define CFG_TUD_HID               0
 #define CFG_TUD_MIDI              0
-#define CFG_TUD_VENDOR            0
+#define CFG_TUD_VENDOR            1
+#define CFG_TUD_DFU_RUNTIME       1
 
 // CDC FIFO size of TX and RX
 #define CFG_TUD_CDC_RX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
 #define CFG_TUD_CDC_TX_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
+#define CFG_TUD_VENDOR_RX_BUFSIZE (TUD_OPT_HIGH_SPEED ? 512 : 64)
+#define CFG_TUD_VENDOR_TX_BUFSIZE (TUD_OPT_HIGH_SPEED ? 512 : 64)
 
-// CDC Endpoint transfer buffer size, more is faster
-#define CFG_TUD_CDC_EP_BUFSIZE   (TUD_OPT_HIGH_SPEED ? 512 : 64)
+ // CDC Endpoint transfer buffer size, more is faster
+#define CFG_TUD_CDC_EP_BUFSIZE (TUD_OPT_HIGH_SPEED ? 512 : 64)
+#define CFG_TUD_EP_BUFSIZE (TUD_OPT_HIGH_SPEED ? 512 : 64)
+#define CFG_TUD_VENDOR_EPSIZE 32
 
 #ifdef __cplusplus
  }

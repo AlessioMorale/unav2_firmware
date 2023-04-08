@@ -28,26 +28,27 @@
 //--------------------------------------------------------------------+
 // Device Descriptors
 //--------------------------------------------------------------------+
-tusb_desc_device_t const desc_device = {.bLength = sizeof(tusb_desc_device_t),
-                                        .bDescriptorType = TUSB_DESC_DEVICE,
-                                        .bcdUSB = USB_BCD,
+tusb_desc_device_t const desc_device = {
+    .bLength = sizeof(tusb_desc_device_t),
+    .bDescriptorType = TUSB_DESC_DEVICE,
+    .bcdUSB = USB_BCD,
 
-                                        // Use Interface Association Descriptor (IAD) for CDC
-                                        // As required by USB Specs IAD's subclass must be common class (2) and protocol must be IAD (1)
-                                        .bDeviceClass = TUSB_CLASS_MISC,
-                                        .bDeviceSubClass = MISC_SUBCLASS_COMMON,
-                                        .bDeviceProtocol = MISC_PROTOCOL_IAD,
-                                        .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
+    // Use Interface Association Descriptor (IAD) for CDC
+    // As required by USB Specs IAD's subclass must be common class (2) and protocol must be IAD (1)
+    .bDeviceClass = TUSB_CLASS_MISC,
+    .bDeviceSubClass = MISC_SUBCLASS_COMMON,
+    .bDeviceProtocol = MISC_PROTOCOL_IAD,
+    .bMaxPacketSize0 = CFG_TUD_ENDPOINT0_SIZE,
 
-                                        .idVendor = USB_VID,
-                                        .idProduct = USB_PID,
-                                        .bcdDevice = 0x0100,
+    .idVendor = USB_VID,
+    .idProduct = USB_PID,
+    .bcdDevice = DEVICE_BCD,
 
-                                        .iManufacturer = 0x01,
-                                        .iProduct = 0x02,
-                                        .iSerialNumber = 0x03,
+    .iManufacturer = STRING_DESC_MANUFACTURER,
+    .iProduct = STRING_DESC_PRODUCT,
+    .iSerialNumber = STRING_DESC_SERIAL,
 
-                                        .bNumConfigurations = 0x01};
+    .bNumConfigurations = 0x01};
 
 // Invoked when received GET DEVICE DESCRIPTOR
 // Application return pointer to descriptor
@@ -58,27 +59,18 @@ uint8_t const *tud_descriptor_device_cb(void) {
 //--------------------------------------------------------------------+
 // Configuration Descriptor
 //--------------------------------------------------------------------+
-enum { ITF_NUM_CDC_0 = 0, ITF_NUM_CDC_0_DATA, ITF_NUM_CDC_1_DATA, ITF_NUM_CDC_1, ITF_NUM_TOTAL };
+enum { ITF_NUM_GS_0 = 0, ITF_NUM_DFU_RT, ITF_NUM_TOTAL };
 
-#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + CFG_TUD_CDC * TUD_CDC_DESC_LEN)
-
-#define EPNUM_CDC_0_NOTIF 0x81
-#define EPNUM_CDC_0_OUT 0x02
-#define EPNUM_CDC_0_IN 0x82
-
-#define EPNUM_CDC_1_OUT 0x03
-#define EPNUM_CDC_1_IN 0x83
-#define EPNUM_CDC_1_NOTIF 0x84 // This is non existent Endpoint. Protocol need to specify one we are not going to use notif for cdc1
+#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_VENDOR_DESC_LEN + TUD_DFU_RT_DESC_LEN)
+#define EPNUM_GS_EPIN 0x81
+#define EPNUM_GS_EPOUT 0x02
 
 uint8_t const desc_fs_configuration[] = {
     // Config number, interface count, string index, total length, attribute, power in mA
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
-
-    // 1st CDC: Interface number, string index, EP notification address and size, EP data address (out, in) and size.
-    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_0, 4, EPNUM_CDC_0_NOTIF, 8, EPNUM_CDC_0_OUT, EPNUM_CDC_0_IN, 64),
-
-    // 2nd CDC: Interface number, string index, EP notification address and size, EP data address (out, in) and size.
-    TUD_CDC_DESCRIPTOR(ITF_NUM_CDC_1, 4, EPNUM_CDC_1_NOTIF, 8, EPNUM_CDC_1_OUT, EPNUM_CDC_1_IN, 64),
+    TUD_VENDOR_DESCRIPTOR(ITF_NUM_GS_0, STRING_DESC_GS_USB_INTERFACE, EPNUM_GS_EPOUT, EPNUM_GS_EPIN,
+                          CFG_TUD_VENDOR_EPSIZE),
+    TUD_DFU_RT_DESCRIPTOR(ITF_NUM_DFU_RT, 6, 0x0B, 1000, 4096),
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
@@ -96,11 +88,13 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
 
 // array of pointer to string descriptors
 char const *string_desc_arr[] = {
-    (const char[]){0x09, 0x04}, // 0: is supported language is English (0x0409)
-    USB_DESC_MANUFACTURER,      // 1: Manufacturer
-    USB_DESC_PRODUCT,           // 2: Product
-    USB_DESC_SERIAL,            // 3: Serials, should use chip ID
-    USB_DESC_CDC_INTERFACE,     // 4: CDC Interface
+    [0] = (const char[]){0x09, 0x04},                           // 0: is supported language is English (0x0409)
+    [STRING_DESC_MANUFACTURER] = USB_DESC_MANUFACTURER,         // 1: Manufacturer
+    [STRING_DESC_PRODUCT] = USB_DESC_PRODUCT,                   // 2: Product
+    [STRING_DESC_SERIAL] = USB_DESC_SERIAL,                     // 3: Serials, should use chip ID
+    [STRING_DESC_CDC_INTERFACE] = USB_DESC_CDC_INTERFACE,       // 4: CDC Interface
+    [STRING_DESC_GS_USB_INTERFACE] = USB_DESC_GS_USB_INTERFACE, // 5: GS_USB Interface
+    [STRING_DESC_DFU_INTERFACE] = USB_DESC_DFU_INTERFACE,       // 6: DFU
 };
 
 static uint16_t _desc_str[32];

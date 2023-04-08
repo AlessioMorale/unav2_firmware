@@ -12,6 +12,7 @@ void Board::init_gpio() {
   __HAL_RCC_GPIOD_CLK_ENABLE();
   __HAL_RCC_GPIOE_CLK_ENABLE();
 }
+
 void Board::init_usb_hw() {
   init_usb_pins();
   board_vbus_sense_init();

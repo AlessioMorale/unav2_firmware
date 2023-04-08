@@ -1,11 +1,11 @@
 #include <FreeRTOS.h>
+#include <application.h>
 #include <stm32f4xx.h>
 #include <stm32f4xx_hal.h>
 #include <timing.h>
-#include <application.h>
-
+#include <instrumentation.h>
 void SystemClock_Config(void);
-void Error_Handler(void);
+extern "C" void Error_Handler(void);
 extern "C" HAL_StatusTypeDef HAL_Init();
 
 extern "C" int main() {
@@ -58,13 +58,19 @@ void SystemClock_Config(void) {
   }
 }
 
+// In case of error, set the system to a safe status before shutdown.
+void failsafe_stop() {
+}
+
 /**
  * @brief  This function is executed in case of error occurrence.
  * @retval None
  */
-void Error_Handler(void) {
+
+extern "C" void Error_Handler(void) {
   /* USER CODE BEGIN Error_Handler_Debug */
   /* User can add his own implementation to report the HAL error return state */
+  failsafe_stop();
   while (1)
     ;
   /* USER CODE END Error_Handler_Debug */

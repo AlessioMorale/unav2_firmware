@@ -28,10 +28,8 @@ add_executable(${elf_file} ${sources})
 # link StdPeriph library to project
 target_link_libraries(${elf_file} PUBLIC stm32f4xx)
 target_link_libraries(${elf_file} PUBLIC etl)
-target_link_libraries(${elf_file} PUBLIC nanopb)
 target_link_libraries(${elf_file} PUBLIC tinyusb)
 target_link_libraries(${elf_file} PUBLIC freertos_kernel)
-target_link_libraries(${elf_file} PUBLIC embedded_cli)
 
 # set additional for compiler and linker: optimization and generate map file
 set(additional_compiler_flags ${opt_level})
