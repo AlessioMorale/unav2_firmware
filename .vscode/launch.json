@@ -20,21 +20,18 @@
             // "preLaunchCommands": ["Build all"], // you can execute command instead of task
             "svdFile": "", // Include svd to watch device peripherals
             "rtos": "FreeRTOS",
-            "swoConfig": {
+            "showDevDebugOutput": "parsed",
+            "rttConfig": {
                 "enabled": true,
-                "cpuFrequency": 160000000,
-                "swoFrequency": 2000000,
-                "source": "probe",
+                "address": "auto",
                 "decoders": [
                     {
-                        "label": "ITM port 0 output",
-                        "type": "console",
+                        "label": "",
                         "port": 0,
-                        "showOnStartup": false,
-                        "encoding": "ascii"
+                        "type": "console"
                     }
                 ]
-            }
+            },
         },
         {
             "name": "Attach",
@@ -48,23 +45,21 @@
             "device": "STM32F407VG",
             "interface": "swd",
             "preLaunchTask": "CMake: build", // configured in tasks.json
+            // "preLaunchCommands": ["Build all"], // you can execute command instead of task
             "svdFile": "", // Include svd to watch device peripherals
             "rtos": "FreeRTOS",
-            "swoConfig": {
+            "showDevDebugOutput": "parsed",
+            "rttConfig": {
                 "enabled": true,
-                "cpuFrequency": 160000000,
-                "swoFrequency": 4000000,
-                "source": "probe",
+                "address": "auto",
                 "decoders": [
                     {
-                        "label": "ITM port 0 output",
-                        "type": "console",
+                        "label": "",
                         "port": 0,
-                        "showOnStartup": false,
-                        "encoding": "ascii"
+                        "type": "console"
                     }
                 ]
-            }
+            },
         }
     ]
 }

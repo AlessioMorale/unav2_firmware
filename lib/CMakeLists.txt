@@ -6,3 +6,4 @@ add_subdirectory("etl")
 
 add_subdirectory("FreeRTOS-Kernel") 
 include("tinyusb.cmake")
+include("rtt.cmake")

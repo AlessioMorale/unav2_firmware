@@ -147,19 +147,6 @@ THE SOFTWARE.
 #define CAN_ERR_PROT_LOC_EOF 0x1A     /* end of frame */
 #define CAN_ERR_PROT_LOC_INTERM 0x12  /* intermission */
 
-/* error status of CAN-transceiver / data[4] */
-/*                                             CANH CANL */
-#define CAN_ERR_TRX_UNSPEC 0x00             /* 0000 0000 */
-#define CAN_ERR_TRX_CANH_NO_WIRE 0x04       /* 0000 0100 */
-#define CAN_ERR_TRX_CANH_SHORT_TO_BAT 0x05  /* 0000 0101 */
-#define CAN_ERR_TRX_CANH_SHORT_TO_VCC 0x06  /* 0000 0110 */
-#define CAN_ERR_TRX_CANH_SHORT_TO_GND 0x07  /* 0000 0111 */
-#define CAN_ERR_TRX_CANL_NO_WIRE 0x40       /* 0100 0000 */
-#define CAN_ERR_TRX_CANL_SHORT_TO_BAT 0x50  /* 0101 0000 */
-#define CAN_ERR_TRX_CANL_SHORT_TO_VCC 0x60  /* 0110 0000 */
-#define CAN_ERR_TRX_CANL_SHORT_TO_GND 0x70  /* 0111 0000 */
-#define CAN_ERR_TRX_CANL_SHORT_TO_CANH 0x80 /* 1000 0000 */
-
 enum class gs_usb_breq : uint8_t {
   GS_USB_BREQ_HOST_FORMAT = 0,
   GS_USB_BREQ_BITTIMING,

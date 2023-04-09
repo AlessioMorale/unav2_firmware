@@ -1,6 +1,8 @@
-cmake_minimum_required (VERSION 2.8.12)
+cmake_minimum_required(VERSION 3.0)
 include("./CMake/GNU-ARM-Toolchain.cmake")
 include_directories("include")
+set(LOGGER "rtt")
+
 # set the build type
 if(NOT CMAKE_BUILD_TYPE) 
     set(CMAKE_BUILD_TYPE Release)
@@ -25,7 +27,11 @@ find_package(Openocd)
 # Project specific settings
 set(application_name "uNav2")
 
-project (${application_name} C CXX ASM)
+set(PROJECT_VERSION "0.0.99")
+if(DEFINED ENV{UNAV_PROJECT_VERSION})
+    set(PROJECT_VERSION "$ENV{UNAV_PROJECT_VERSION}/")
+endif()
+project (${application_name} VERSION ${PROJECT_VERSION} LANGUAGES C CXX ASM)
 
 # FreeRTOS settings
 set(FREERTOS_CONFIG_FILE_DIRECTORY "../include" CACHE STRING "")

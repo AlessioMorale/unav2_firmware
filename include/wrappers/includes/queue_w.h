@@ -24,7 +24,10 @@ class IQueue {
   virtual bool is_empty_from_isr() = 0;
   virtual bool is_full_from_isr() = 0;
 
-  bool is_empty() { return messages_waiting() == 0; }
+  bool is_empty() {
+    auto count = messages_waiting();
+    return  count == 0;
+  }
 
   bool is_full() { return space_available() == 0; }
 };

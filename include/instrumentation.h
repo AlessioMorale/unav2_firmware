@@ -126,8 +126,7 @@ private:
    */
   PerfCounter &create(etl::string_view &key) {
     assert(!counters.full());
-    auto ret = counters.emplace_back(key);
-    return ret;
+    return counters.emplace_back(key);
   }
 };
 } // namespace unav

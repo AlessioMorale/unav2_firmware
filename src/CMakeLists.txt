@@ -25,6 +25,8 @@ set(lss_file ${application_name}.lss)
 # add sources to elf file
 add_executable(${elf_file} ${sources})
 
+target_link_libraries(${elf_file} PUBLIC rtt)
+
 # link StdPeriph library to project
 target_link_libraries(${elf_file} PUBLIC stm32f4xx)
 target_link_libraries(${elf_file} PUBLIC etl)

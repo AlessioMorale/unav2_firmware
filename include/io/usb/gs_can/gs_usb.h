@@ -1,6 +1,7 @@
 #pragma once
 #ifndef CDC_H
 #define CDC_H
+#include <SEGGER_RTT.h>
 #include <application.h>
 #include <bsp/board.h>
 #include <etl/algorithm.h>
@@ -63,18 +64,19 @@ class UsbCan {
 
   bool control_xfer_cb(uint8_t rhport, uint8_t stage, const tusb_control_request_t *request) {
     if (request->bmRequestType_bit.type != TUSB_REQ_TYPE_VENDOR || request->wIndex != 0) {
-      return false;
+      return true;
     }
+    SEGGER_RTT_printf(0, "control_xfer_cb %p %p %u %u\r\n", request->bRequest, request->bmRequestType_bit.type,
+                      request->wIndex, request->wLength);
     auto control_message = etl::find_if(  //
         control_messages.begin(),         //
         control_messages.end(),           //
         [request](auto i) { return static_cast<uint8_t>(i.request_type) == request->bRequest; });
 
     if (static_cast<uint8_t>(control_message->request_type) == request->bRequest) {
-      
       if (stage == CONTROL_STAGE_SETUP) {
         return control_message->length == request->wLength &&
-               control_message->direction == request->bmRequestType_bit.direction &&
+               // control_message->direction == request->bmRequestType_bit.direction &&
                tud_control_xfer(rhport, request, const_cast<void *>(control_message->data), control_message->length);
       }
 
@@ -126,11 +128,11 @@ class UsbCan {
 
   // gs_control_message ccontrol_messages[5]{
   etl::array<gs_control_message, 5> control_messages = {
-      {{gs_usb_breq::GS_USB_BREQ_DEVICE_CONFIG, &device_config, sizeof(device_config), TUSB_DIR_OUT},
-       {gs_usb_breq::GS_USB_BREQ_BT_CONST, &device_bt_const, sizeof(device_bt_const), TUSB_DIR_OUT},
+      {{gs_usb_breq::GS_USB_BREQ_DEVICE_CONFIG, &device_config, sizeof(device_config), TUSB_DIR_IN},
+       {gs_usb_breq::GS_USB_BREQ_BT_CONST, &device_bt_const, sizeof(device_bt_const), TUSB_DIR_IN},
        {gs_usb_breq::GS_USB_BREQ_HOST_FORMAT, &byte_order, sizeof(byte_order), TUSB_DIR_OUT},
-       {gs_usb_breq::GS_USB_BREQ_BITTIMING, &device_bittiming, sizeof(device_bittiming), TUSB_DIR_IN},
-       {gs_usb_breq::GS_USB_BREQ_MODE, &device_mode, sizeof(device_mode), TUSB_DIR_IN}}};
+       {gs_usb_breq::GS_USB_BREQ_BITTIMING, &device_bittiming, sizeof(device_bittiming), TUSB_DIR_OUT},
+       {gs_usb_breq::GS_USB_BREQ_MODE, &device_mode, sizeof(device_mode), TUSB_DIR_OUT}}};
 
   bool apply_config(uint8_t request) {
     switch (static_cast<gs_usb_breq>(request)) {
@@ -138,7 +140,6 @@ class UsbCan {
       case gs_usb_breq::GS_USB_BREQ_SET_TERMINATION:
       case gs_usb_breq::GS_USB_BREQ_MODE:
       case gs_usb_breq::GS_USB_BREQ_BITTIMING:
-        return true;
       case gs_usb_breq::GS_USB_BREQ_HOST_FORMAT:
         return byte_order == 0xbeef;
       default:
@@ -165,20 +166,23 @@ class UsbCan {
   // USB CDC
   //--------------------------------------------------------------------+
   inline void usb_can_task_function() {
-    // const size_t block_len = 64;
     // RTOS forever loop
     while (true) {
-      gs_host_frame frame;
+      gs_host_frame frame = {0};
+      auto frame_size = sizeof(frame) - sizeof(frame.timestamp_us);
+
       size_t count = 0;
       while ((count = tud_vendor_available()) > 0 && !data_in_queue.is_full()) {
-        (void)tud_vendor_read((void *)&frame, sizeof(frame));
+        (void)tud_vendor_read((void *)&frame, frame_size);
         data_in_queue.send(frame, 1);
       }
-      while (!data_out_queue.is_empty() && (count = tud_vendor_write_available()) > sizeof(frame)) {
-        if (data_out_queue.receive(frame, 1)) {
-          tud_vendor_write((void *)&frame, sizeof(frame));
+      while (!data_in_queue.is_empty() && (count = tud_vendor_write_available()) >= frame_size) {
+        if (data_in_queue.receive(frame, 1)) {
+          frame.echo_id = 0xFFFFFFFF;
+          tud_vendor_write((void *)&frame, frame_size);
         }
       }
+      tud_vendor_flush();
       vTaskDelay(1);
     }
   }
@@ -200,9 +204,7 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, const tusb_contro
 }
 }
 
-void tud_dfu_runtime_reboot_to_dfu_cb (){
-
-}
+void tud_dfu_runtime_reboot_to_dfu_cb() {}
 // // Invoked when CDC interface received data from host
 // void tud_vendor_rx_cb(uint8_t itf) {
 //   (void)itf;

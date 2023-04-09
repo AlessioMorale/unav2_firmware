@@ -52,16 +52,19 @@ tusb_desc_device_t const desc_device = {
 
 // Invoked when received GET DEVICE DESCRIPTOR
 // Application return pointer to descriptor
-uint8_t const *tud_descriptor_device_cb(void) {
-  return (uint8_t const *)&desc_device;
-}
+uint8_t const *tud_descriptor_device_cb(void) { return (uint8_t const *)&desc_device; }
 
 //--------------------------------------------------------------------+
 // Configuration Descriptor
 //--------------------------------------------------------------------+
-enum { ITF_NUM_GS_0 = 0, ITF_NUM_DFU_RT, ITF_NUM_TOTAL };
+enum {
+  ITF_NUM_GS_0 = 0,
+  // ITF_NUM_DFU_RT,
+  ITF_NUM_TOTAL
+};
 
-#define CONFIG_TOTAL_LEN (TUD_CONFIG_DESC_LEN + TUD_VENDOR_DESC_LEN + TUD_DFU_RT_DESC_LEN)
+#define CONFIG_TOTAL_LEN \
+  (TUD_CONFIG_DESC_LEN + TUD_VENDOR_DESC_LEN * CFG_TUD_VENDOR + TUD_DFU_RT_DESC_LEN * CFG_TUD_DFU_RUNTIME)
 #define EPNUM_GS_EPIN 0x81
 #define EPNUM_GS_EPOUT 0x02
 
@@ -70,14 +73,14 @@ uint8_t const desc_fs_configuration[] = {
     TUD_CONFIG_DESCRIPTOR(1, ITF_NUM_TOTAL, 0, CONFIG_TOTAL_LEN, 0x00, 100),
     TUD_VENDOR_DESCRIPTOR(ITF_NUM_GS_0, STRING_DESC_GS_USB_INTERFACE, EPNUM_GS_EPOUT, EPNUM_GS_EPIN,
                           CFG_TUD_VENDOR_EPSIZE),
-    TUD_DFU_RT_DESCRIPTOR(ITF_NUM_DFU_RT, 6, 0x0B, 1000, 4096),
+    //    TUD_DFU_RT_DESCRIPTOR(ITF_NUM_DFU_RT, 6, 0x0B, 1000, 4096),
 };
 
 // Invoked when received GET CONFIGURATION DESCRIPTOR
 // Application return pointer to descriptor
 // Descriptor contents must exist long enough for transfer to complete
 uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
-  (void)index; // for multiple configurations
+  (void)index;  // for multiple configurations
 
   return desc_fs_configuration;
 }
@@ -88,13 +91,13 @@ uint8_t const *tud_descriptor_configuration_cb(uint8_t index) {
 
 // array of pointer to string descriptors
 char const *string_desc_arr[] = {
-    [0] = (const char[]){0x09, 0x04},                           // 0: is supported language is English (0x0409)
-    [STRING_DESC_MANUFACTURER] = USB_DESC_MANUFACTURER,         // 1: Manufacturer
-    [STRING_DESC_PRODUCT] = USB_DESC_PRODUCT,                   // 2: Product
-    [STRING_DESC_SERIAL] = USB_DESC_SERIAL,                     // 3: Serials, should use chip ID
-    [STRING_DESC_CDC_INTERFACE] = USB_DESC_CDC_INTERFACE,       // 4: CDC Interface
-    [STRING_DESC_GS_USB_INTERFACE] = USB_DESC_GS_USB_INTERFACE, // 5: GS_USB Interface
-    [STRING_DESC_DFU_INTERFACE] = USB_DESC_DFU_INTERFACE,       // 6: DFU
+    [0] = (const char[]){0x09, 0x04},                            // 0: is supported language is English (0x0409)
+    [STRING_DESC_MANUFACTURER] = USB_DESC_MANUFACTURER,          // 1: Manufacturer
+    [STRING_DESC_PRODUCT] = USB_DESC_PRODUCT,                    // 2: Product
+    [STRING_DESC_SERIAL] = USB_DESC_SERIAL,                      // 3: Serials, should use chip ID
+    [STRING_DESC_CDC_INTERFACE] = USB_DESC_CDC_INTERFACE,        // 4: CDC Interface
+    [STRING_DESC_GS_USB_INTERFACE] = USB_DESC_GS_USB_INTERFACE,  // 5: GS_USB Interface
+    [STRING_DESC_DFU_INTERFACE] = USB_DESC_DFU_INTERFACE,        // 6: DFU
 };
 
 static uint16_t _desc_str[32];
@@ -113,15 +116,13 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     // Note: the 0xEE index string is a Microsoft OS 1.0 Descriptors.
     // https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/microsoft-defined-usb-descriptors
 
-    if (!(index < sizeof(string_desc_arr) / sizeof(string_desc_arr[0])))
-      return NULL;
+    if (!(index < sizeof(string_desc_arr) / sizeof(string_desc_arr[0]))) return NULL;
 
     const char *str = string_desc_arr[index];
 
     // Cap at max char
     chr_count = (uint8_t)strlen(str);
-    if (chr_count > 31)
-      chr_count = 31;
+    if (chr_count > 31) chr_count = 31;
 
     // Convert ASCII string into UTF-16
     for (uint8_t i = 0; i < chr_count; i++) {
