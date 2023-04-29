@@ -1,8 +1,7 @@
 #pragma once
 #ifndef CDC_H
 #define CDC_H
-#include <SEGGER_RTT.h>
-#include <application.h>
+#include <debug.h>
 #include <bsp/board.h>
 #include <etl/algorithm.h>
 #include <etl/array.h>
@@ -66,8 +65,8 @@ class UsbCan {
     if (request->bmRequestType_bit.type != TUSB_REQ_TYPE_VENDOR || request->wIndex != 0) {
       return true;
     }
-    SEGGER_RTT_printf(0, "control_xfer_cb %p %p %u %u\r\n", request->bRequest, request->bmRequestType_bit.type,
-                      request->wIndex, request->wLength);
+    logger_debug("control_xfer_cb %p %p %u %u\r\n", request->bRequest, request->bmRequestType_bit.type, request->wIndex,
+                 request->wLength);
     auto control_message = etl::find_if(  //
         control_messages.begin(),         //
         control_messages.end(),           //

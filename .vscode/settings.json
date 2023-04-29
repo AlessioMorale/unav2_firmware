@@ -78,7 +78,7 @@
     "C_Cpp.default.cStandard": "c17",
     "C_Cpp.default.mergeConfigurations": true,
     "C_Cpp.default.includePath": [
-        "include",
+        "app/include",
         "lib/FreeRTOS-Kernel/include",
         "lib/embedded-cli/lib/include",
         "lib/FreeRTOS-Kernel/portable/GCC/ARM_CM4F",

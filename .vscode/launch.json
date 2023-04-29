@@ -7,7 +7,7 @@
         {
             "name": "Launch",
             "cwd": "${workspaceFolder}",
-            "executable": "${workspaceRoot}/build/src/uNav2.elf",
+            "executable": "${workspaceRoot}/build/app/src/uNav2.elf",
             "request": "launch",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
@@ -36,7 +36,7 @@
         {
             "name": "Attach",
             "cwd": "${workspaceFolder}",
-            "executable": "${workspaceRoot}/build/src/uNav2.elf",
+            "executable": "${workspaceRoot}/build/app/src/uNav2.elf",
             "request": "attach",
             "type": "cortex-debug",
             "runToEntryPoint": "main",

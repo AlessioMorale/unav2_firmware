@@ -1,8 +1,8 @@
 cmake_minimum_required(VERSION 3.0)
 include("./CMake/GNU-ARM-Toolchain.cmake")
-include_directories("include")
-set(LOGGER "rtt")
-
+include_directories("app/include")
+add_compile_definitions(LOGGER "rtt")
+add_compile_definitions(ENABLE_LOGGER)
 # set the build type
 if(NOT CMAKE_BUILD_TYPE) 
     set(CMAKE_BUILD_TYPE Release)
@@ -34,7 +34,7 @@ endif()
 project (${application_name} VERSION ${PROJECT_VERSION} LANGUAGES C CXX ASM)
 
 # FreeRTOS settings
-set(FREERTOS_CONFIG_FILE_DIRECTORY "../include" CACHE STRING "")
+set(FREERTOS_CONFIG_FILE_DIRECTORY "../app/include" CACHE STRING "")
 set(FREERTOS_PORT "GCC_ARM_CM4F" CACHE STRING "")
 
 # TinyUSB settings
@@ -50,10 +50,10 @@ get_filename_component(LINKER_SCRIPT linker/STM32F405RGTx_FLASH.ld ABSOLUTE)
 #set(ADDITIONAL_CORE_FLAGS -flto)
 
 # OpenOCD config file
-get_filename_component(OPENOCD_CONFIG tools/openocd.cfg ABSOLUTE)
+get_filename_component(OPENOCD_CONFIG "tools/openocd.cfg" ABSOLUTE)
 
 # add libraries
 add_subdirectory(lib)
 
 # add main project
-add_subdirectory(src)
+add_subdirectory("app")
