@@ -1,10 +1,11 @@
 #pragma once
 #ifndef BOARD_BSP_H
 #define BOARD_BSP_H
-#include <cstdint>
 #include <etl/array.h>
 #include <stm32f4xx.h>
 #include <stm32f4xx_hal.h>
+
+#include <cstdint>
 namespace unav::bsp {
 
 struct gpio {
@@ -15,9 +16,7 @@ struct gpio {
   GPIO_TypeDef *port;
   bool invert;
 
-  bool is_valid() {
-    return port != nullptr;
-  }
+  bool is_valid() { return port != nullptr; }
 
   void init() {
     if (is_valid()) {
@@ -42,7 +41,7 @@ struct gpio {
 enum class BoardLeds { activity = 0, warning = 1, error = 2, count };
 
 class Board {
-public:
+ public:
   static Board instance;
   void init_usb_hw();
   void init_gpio();
@@ -50,14 +49,17 @@ public:
   void init_leds();
   const etl::array<gpio, static_cast<size_t>(BoardLeds::count)> leds = {
       {GPIO_PIN_13, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, GPIOC, false}};
-  const gpio &led(BoardLeds led) {
-    return leds[static_cast<size_t>(led)];
-    }
+  const gpio &led(BoardLeds led) { return leds[static_cast<size_t>(led)]; }
 
-  private:
-    void board_vbus_sense_init();
-    void init_usb_pins();
-  };
-} // namespace unav::bsp
+  const uint32_t[3] get_uid() {
+    uint32_t[3] id = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
+    return id;
+  }
+
+ private:
+  void board_vbus_sense_init();
+  void init_usb_pins();
+};
+}  // namespace unav::bsp
 
 #endif /* BOARD_BSP_H */

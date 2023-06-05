@@ -3,16 +3,16 @@ file(GLOB_RECURSE cpp_sources "*.cpp")
 file(GLOB_RECURSE c_sources "*.c")
 
 set(sources
-    ${cpp_sources}
-    ${c_sources}
-    startup_stm32f405xx.s
+${cpp_sources}
+${c_sources}
+startup_stm32f405xx.s
 )
 
 # GCC optimization level: use -O0 in debug build, otherwise -O2
 if(CMAKE_BUILD_TYPE MATCHES Debug)
-  set(opt_level -O0)
+set(opt_level -O0)
 else()
-  set(opt_level -Os)
+set(opt_level -Os)
 endif()
 
 # set some project constants
@@ -24,6 +24,7 @@ set(lss_file ${application_name}.lss)
 
 # add sources to elf file
 add_executable(${elf_file} ${sources})
+include("opencyphal_support.cmake")
 
 target_link_libraries(${elf_file} PUBLIC rtt)
 
@@ -32,6 +33,8 @@ target_link_libraries(${elf_file} PUBLIC stm32f4xx)
 target_link_libraries(${elf_file} PUBLIC etl)
 target_link_libraries(${elf_file} PUBLIC tinyusb)
 target_link_libraries(${elf_file} PUBLIC freertos_kernel)
+target_link_libraries(${elf_file} PUBLIC libcanard)
+target_link_libraries(${elf_file} PUBLIC o1heap)
 
 # set additional for compiler and linker: optimization and generate map file
 set(additional_compiler_flags ${opt_level})

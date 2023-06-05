@@ -25,3 +25,15 @@
 [submodule "lib/embedded-cli"]
 	path = lib/embedded-cli
 	url = https://github.com/funbiscuit/embedded-cli.git
+[submodule "lib/CANopenNode"]
+	path = lib/CANopenNode
+	url = https://github.com/CANopenNode/CANopenNode.git
+[submodule "lib/libcanard"]
+	path = lib/libcanard
+	url = https://github.com/OpenCyphal/libcanard.git
+[submodule "lib/public_regulated_data_types"]
+	path = lib/public_regulated_data_types
+	url = https://github.com/OpenCyphal/public_regulated_data_types.git
+[submodule "lib/o1heap"]
+	path = lib/o1heap
+	url = https://github.com/pavel-kirienko/o1heap.git

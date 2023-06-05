@@ -1,8 +1,8 @@
 #pragma once
 #ifndef CDC_H
 #define CDC_H
-#include <debug.h>
 #include <bsp/board.h>
+#include <debug.h>
 #include <etl/algorithm.h>
 #include <etl/array.h>
 #include <stm32f4xx.h>
@@ -12,6 +12,7 @@
 #include <wrappers/thread.h>
 
 #include <cstddef>
+#include <memory>
 #include <string>
 
 #include "gs_usb_private.h"
@@ -26,7 +27,6 @@ namespace unav::io::usb {
 #define DATA_QUEUE_SIZE 10
 #define CONTROL_QUEUE_SIZE 10
 #define CAN_CLOCK_SPEED 42000000
-
 class UsbCan {
  private:
   struct gs_control_message {
@@ -35,23 +35,47 @@ class UsbCan {
     size_t length;
     uint8_t direction;
   };
+  inline static std::unique_ptr<UsbCan> instance;
 
  public:
-  inline static UsbCan *instance;
+  struct gs_host_frame {
+    u32 echo_id;
+    u32 can_id;
 
-  UsbCan()
-      : data_in_queue("gs_usb_in"),
-        data_out_queue("gs_usb_out"),
-        usb_dev_delegate{thread_delegate::create<UsbCan, &UsbCan::usb_device_task_function>(*this)},
-        usb_device_task{usb_dev_delegate, ThreadPriority::Highest, "usb/dev"},
-        usb_can_delegate{thread_delegate::create<UsbCan, &UsbCan::usb_can_task_function>(*this)},
-        usb_can_task{usb_can_delegate, ThreadPriority::High, "usb/gs_usb"} {}
+    u8 can_dlc;
+    u8 channel;
+    u8 flags;
+    u8 reserved;
+
+    u8 data[8];
+
+    u32 timestamp_us;
+
+  } __packed __aligned(4);
+
+  struct gs_host_frame_canfd {
+    u32 echo_id;
+    u32 can_id;
+
+    u8 can_dlc;
+    u8 channel;
+    u8 flags;
+    u8 reserved;
+
+    u8 data[64];
+  } __packed __aligned(4);
+
+  static UsbCan *get_instance() {
+    if (instance == nullptr) {
+      instance.reset(new UsbCan());
+    }
+    return instance.get();
+  }
 
   IQueue<gs_host_frame> &get_data_in_queue() { return data_in_queue; }
   IQueue<gs_host_frame> &get_data_out_queue() { return data_out_queue; }
   /// @brief setup the cdc stack
   void setup() {
-    instance = this;
     // initialise the BSP
     unav::bsp::Board::instance.init_usb_hw();
 
@@ -82,7 +106,7 @@ class UsbCan {
       if (request->bmRequestType_bit.direction == TUSB_DIR_OUT) {
         switch (stage) {
           case CONTROL_STAGE_DATA:
-            return apply_config(request->bRequest);
+            return apply_config(request->bRequest, request->wValue);
           case CONTROL_STAGE_ACK:
             return true;
         }
@@ -94,12 +118,18 @@ class UsbCan {
   }
 
  private:
+  UsbCan()
+      : data_in_queue("gs_usb_in"),
+        data_out_queue("gs_usb_out"),
+        usb_device_task{thread_delegate::create<UsbCan, &UsbCan::usb_device_task_function>(*this),
+                        ThreadPriority::Highest, "usb/dev"},
+        usb_can_task{thread_delegate::create<UsbCan, &UsbCan::usb_can_task_function>(*this), ThreadPriority::High,
+                     "usb/gs_usb"} {}
+
   Queue<DATA_QUEUE_SIZE, gs_host_frame> data_in_queue;
   Queue<DATA_QUEUE_SIZE, gs_host_frame> data_out_queue;
 
-  const thread_delegate usb_dev_delegate;
   Thread<USBD_STACK_SIZE> usb_device_task;
-  const thread_delegate usb_can_delegate;
   Thread<GS_STACK_SIZE> usb_can_task;
 
   const struct gs_device_config device_config { .icount = 0, .sw_version = 2, .hw_version = 1, };
@@ -133,7 +163,7 @@ class UsbCan {
        {gs_usb_breq::GS_USB_BREQ_BITTIMING, &device_bittiming, sizeof(device_bittiming), TUSB_DIR_OUT},
        {gs_usb_breq::GS_USB_BREQ_MODE, &device_mode, sizeof(device_mode), TUSB_DIR_OUT}}};
 
-  bool apply_config(uint8_t request) {
+  bool apply_config(uint8_t request, uint16_t value) {
     switch (static_cast<gs_usb_breq>(request)) {
       case gs_usb_breq::GS_USB_BREQ_IDENTIFY:
       case gs_usb_breq::GS_USB_BREQ_SET_TERMINATION:
@@ -175,9 +205,8 @@ class UsbCan {
         (void)tud_vendor_read((void *)&frame, frame_size);
         data_in_queue.send(frame, 1);
       }
-      while (!data_in_queue.is_empty() && (count = tud_vendor_write_available()) >= frame_size) {
-        if (data_in_queue.receive(frame, 1)) {
-          frame.echo_id = 0xFFFFFFFF;
+      while (!data_out_queue.is_empty() && (count = tud_vendor_write_available()) >= frame_size) {
+        if (data_out_queue.receive(frame, 1)) {
           tud_vendor_write((void *)&frame, frame_size);
         }
       }
@@ -196,8 +225,8 @@ void tud_mount_cb(void) {}
 void tud_umount_cb(void) {}
 
 bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, const tusb_control_request_t *request) {
-  if (unav::io::usb::UsbCan::instance != nullptr) {
-    return unav::io::usb::UsbCan::instance->control_xfer_cb(rhport, stage, request);
+  if (unav::io::usb::UsbCan::get_instance() != nullptr) {
+    return unav::io::usb::UsbCan::get_instance()->control_xfer_cb(rhport, stage, request);
   }
   return false;
 }

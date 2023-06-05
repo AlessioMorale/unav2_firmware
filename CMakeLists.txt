@@ -14,6 +14,8 @@ elseif(CMAKE_BUILD_TYPE MATCHES Release)
   message("Release build.")
 endif()
 
+set(LIBS_FOLDER ${CMAKE_SOURCE_DIR}/lib)
+
 # set search path for CMake modules
 set(CMAKE_MODULE_PATH ${CMAKE_SOURCE_DIR}/CMake/Modules)
 

@@ -80,6 +80,7 @@ THE SOFTWARE.
 #define GS_CAN_FLAG_ESI                                 \
   (1 << 3) /* error state indicator (for CAN-FD frames) \
             */
+#define CAN_EFF_MASK 0x1FFFFFFFU
 
 #define CAN_EFF_FLAG 0x80000000U /* EFF/SFF is set in the MSB */
 #define CAN_RTR_FLAG 0x40000000U /* remote transmission request */
@@ -169,7 +170,7 @@ enum class gs_can_mode {
   /* reset a channel. turns it off */
   GS_CAN_MODE_RESET = 0,
   /* starts a channel */
-  GS_CAN_MODE_START
+  GS_CAN_MODE_START,
 };
 
 enum class gs_can_state {
@@ -268,29 +269,3 @@ struct gs_device_termination_state {
   u32 state;
 } __packed __aligned(4);
 
-struct gs_host_frame {
-  u32 echo_id;
-  u32 can_id;
-
-  u8 can_dlc;
-  u8 channel;
-  u8 flags;
-  u8 reserved;
-
-  u8 data[8];
-
-  u32 timestamp_us;
-
-} __packed __aligned(4);
-
-struct gs_host_frame_canfd {
-  u32 echo_id;
-  u32 can_id;
-
-  u8 can_dlc;
-  u8 channel;
-  u8 flags;
-  u8 reserved;
-
-  u8 data[64];
-} __packed __aligned(4);

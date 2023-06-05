@@ -6,11 +6,6 @@
 namespace unav {
 
 typedef uint32_t tickstime_t;
-struct Time {
-  uint16_t ms;
-  uint16_t us;
-  uint8_t s;
-};
 
 class Timing {
 public:

@@ -6,4 +6,6 @@ add_subdirectory("etl")
 
 add_subdirectory("FreeRTOS-Kernel") 
 include("tinyusb.cmake")
+include("libcanard.cmake")
+include("o1heap.cmake")
 include("rtt.cmake")

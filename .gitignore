@@ -16,4 +16,5 @@ CTestTestfile.cmake
 cmake-build-debug/*
 .envrc
 .cache
+.venv
 build/
