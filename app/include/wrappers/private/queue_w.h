@@ -6,7 +6,7 @@
 #include <queue.h>
 #include <stddef.h>
 #include <timing.h>
-
+#include "wrapper_utils.h"
 #include <string>
 
 namespace freertos::wrappers {
@@ -46,7 +46,7 @@ class Queue : public IQueue<T> {
   const std::string Name;
 
   bool send(const T &item, uint32_t wait_us) override {
-    auto ticks = unav::Timing::us_to_ticks(wait_us);
+    auto ticks = utils::us_to_freertos_ticks(wait_us);
     auto ret = xQueueSend(_queue, static_cast<const void *>(&item), ticks);
     return ret == pdTRUE;
   }
@@ -59,7 +59,7 @@ class Queue : public IQueue<T> {
   }
 
   bool receive(T &item, uint32_t wait_us) override {
-    auto ticks = unav::Timing::us_to_ticks(wait_us);
+    auto ticks = utils::us_to_freertos_ticks(wait_us);
     auto ret = xQueueReceive(_queue, static_cast<void *>(&item), ticks);
     return ret == pdTRUE;
   }

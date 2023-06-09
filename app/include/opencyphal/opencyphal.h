@@ -14,6 +14,7 @@
 #include <uavcan/node/Version_1_0.h>
 #include <uavcan/node/port/List_0_1.h>
 #include <uavcan/pnp/NodeIDAllocationData_2_0.h>
+#include <wrappers/timer.h>
 
 #include <memory>
 
@@ -25,7 +26,7 @@ namespace unav::opencyphal {
 #define CAN_REDUNDANCY_FACTOR 1
 /// For CAN FD the queue can be smaller.
 #define CAN_TX_QUEUE_CAPACITY 100
-#define OC_STACK_SIZE configMINIMAL_STACK_SIZE
+#define OC_STACK_SIZE configMINIMAL_STACK_SIZE * 2
 
 extern "C" {
 static void* canardAllocate(CanardInstance* const ins, const size_t amount);
@@ -42,6 +43,8 @@ class OpenCyphal {
     rx_can_queue_ = &rx_queue;
 
     can_task.create();
+    one_second_timer_.start();
+    ten_seconds_timer_.start();
   };
 
   OpenCyphal()
@@ -50,14 +53,54 @@ class OpenCyphal {
         tx_can_queue_{nullptr},
         rx_can_queue_{nullptr},
         can_task{thread_delegate::create<OpenCyphal, &OpenCyphal::can_comm_task_function>(*this), ThreadPriority::High,
-                 "cyph/com"} {
-
-        };
+                 "cyph/com"},
+        one_second_timer_{thread_delegate::create<OpenCyphal, &OpenCyphal::one_second_callback>(*this), "cyph/1Hz",
+                          true, MEGA},
+        ten_seconds_timer_{thread_delegate::create<OpenCyphal, &OpenCyphal::ten_seconds_callback>(*this), "cyph/.1Hz",
+                           true, MEGA * 10} {};
 
  protected:
   O1HeapInstance* heap_;
 
  private:
+  uint32_t uavcan_node_heartbeat = {};
+
+  void one_second_callback() {
+    logger_debug("one_second_callback()!\r\n");
+    static uavcan_node_Heartbeat_1_0 heartbeat = {};
+    heartbeat.uptime = (uint32_t)Timing::get_us() / MEGA;
+    heartbeat.mode.value = uavcan_node_Mode_1_0_OPERATIONAL;
+    static const O1HeapDiagnostics heap_diag = o1heapGetDiagnostics(heap_);
+    if (heap_diag.oom_count > 0) {
+      heartbeat.health.value = uavcan_node_Health_1_0_CAUTION;
+    } else {
+      heartbeat.health.value = uavcan_node_Health_1_0_NOMINAL;
+    }
+
+    static uint8_t serialized[uavcan_node_Heartbeat_1_0_SERIALIZATION_BUFFER_SIZE_BYTES_] = {0};
+    static size_t serialized_size = sizeof(serialized);
+    const int8_t err = uavcan_node_Heartbeat_1_0_serialize_(&heartbeat, serialized, &serialized_size);
+    assert(err >= 0);
+    if (err >= 0) {
+    const CanardTransferMetadata meta = {
+          .priority = CanardPriorityNominal,
+          .transfer_kind = CanardTransferKindMessage,
+          .port_id = uavcan_node_Heartbeat_1_0_FIXED_PORT_ID_,
+          .remote_node_id = CANARD_NODE_ID_UNSET,
+          .transfer_id = (CanardTransferID)(uavcan_node_heartbeat++),
+      };
+      send(Timing::get_us() + MEGA,  // Set transmission deadline 1 second, optimal for heartbeat.
+           &meta, serialized_size, &serialized[0]);
+    }
+  }
+
+  void ten_seconds_callback() { logger_debug("ten_seconds_callback()!\r\n"); }
+
+  void send(const uint32_t tx_deadline_usec, const CanardTransferMetadata* const metadata, const size_t payload_size,
+            const void* const payload) {
+    (void)canardTxPush(&tx_queue_, &canard_, tx_deadline_usec, metadata, payload_size, payload);
+  }
+
   CanardInstance canard_;
   _Alignas(O1HEAP_ALIGNMENT) uint8_t heap_arena_[1024 * 8];
   uavcan_node_Version_1_0 version_;
@@ -66,6 +109,8 @@ class OpenCyphal {
   IQueue<unav::io::usb::UsbCan::gs_host_frame>* tx_can_queue_;
   IQueue<unav::io::usb::UsbCan::gs_host_frame>* rx_can_queue_;
   Thread<OC_STACK_SIZE> can_task;
+  Timer one_second_timer_;
+  Timer ten_seconds_timer_;
 
   inline void can_comm_task_function() {
     unav::io::usb::UsbCan::gs_host_frame tx_can_frame{0};
@@ -124,13 +169,12 @@ class OpenCyphal {
 
     canard_ = canardInit(&canardAllocate, &canardFree);
     canard_.user_reference = this;
-    canard_.node_id = CANARD_NODE_ID_UNSET;
+    canard_.node_id = 42;  // CANARD_NODE_ID_UNSET;
     tx_queue_ = canardTxInit(20, CANARD_MTU_CAN_CLASSIC);
     heap_ = o1heapInit(heap_arena_, sizeof(heap_arena_));
 
-    const int8_t res = canardRxSubscribe(
-        &canard_, CanardTransferKindMessage, uavcan_pnp_NodeIDAllocationData_2_0_FIXED_PORT_ID_,
-        uavcan_pnp_NodeIDAllocationData_2_0_EXTENT_BYTES_, CANARD_DEFAULT_TRANSFER_ID_TIMEOUT_USEC, &rx);
+    canardRxSubscribe(&canard_, CanardTransferKindMessage, uavcan_pnp_NodeIDAllocationData_2_0_FIXED_PORT_ID_,
+                      uavcan_pnp_NodeIDAllocationData_2_0_EXTENT_BYTES_, CANARD_DEFAULT_TRANSFER_ID_TIMEOUT_USEC, &rx);
   }
 
   void processReceivedTransfer(const CanardRxTransfer* const transfer) {

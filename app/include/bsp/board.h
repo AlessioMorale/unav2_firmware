@@ -50,9 +50,13 @@ class Board {
   const etl::array<gpio, static_cast<size_t>(BoardLeds::count)> leds = {
       {GPIO_PIN_13, GPIO_MODE_OUTPUT_PP, GPIO_NOPULL, GPIO_SPEED_FREQ_LOW, GPIOC, false}};
   const gpio &led(BoardLeds led) { return leds[static_cast<size_t>(led)]; }
+  union unique_id {
+    uint32_t id_32[3];
+    uint8_t id_8[12];
+  };
 
-  const uint32_t[3] get_uid() {
-    uint32_t[3] id = {HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()};
+  const unique_id get_uid() {
+    unique_id id{{HAL_GetUIDw0(), HAL_GetUIDw1(), HAL_GetUIDw2()}};
     return id;
   }
 

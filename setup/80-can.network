@@ -5,5 +5,5 @@ Name=can*
 RequiredForOnline=no
 
 [CAN]
-BitRate=500000
-RestartSec=500ms
+BitRate=500K
+RestartSec=100ms
