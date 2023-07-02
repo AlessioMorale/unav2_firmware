@@ -202,13 +202,13 @@ class UsbCan {
 
       size_t count = 0;
       while ((count = tud_vendor_available()) > 0 && !data_in_queue.is_full()) {
-        (void)tud_vendor_read((void *)&frame, frame_size);
+        logger_debug("usb_data_rx %u\r\n", frame_size);
+        (void)tud_vendor_read(&frame, frame_size);
         data_in_queue.send(frame, 1);
       }
-      while (!data_out_queue.is_empty() && (count = tud_vendor_write_available()) >= frame_size) {
-        if (data_out_queue.receive(frame, 1)) {
-          tud_vendor_write((void *)&frame, frame_size);
-        }
+      while ((count = tud_vendor_write_available()) >= frame_size && data_out_queue.receive(frame, 1)) {
+          logger_debug("usb_data_tx %u\r\n", frame_size);
+          tud_vendor_write(&frame, frame_size);
       }
       tud_vendor_flush();
       vTaskDelay(1);

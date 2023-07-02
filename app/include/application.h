@@ -19,7 +19,7 @@ class Application {
     led.set(true);
     auto usb_can = unav::io::usb::UsbCan::get_instance();
     usb_can->setup();
-    opencyphal_.setup(usb_can->get_data_in_queue(), usb_can->get_data_out_queue());
+    opencyphal_.setup(usb_can->get_data_out_queue(), usb_can->get_data_in_queue());
   }
 
   Application() = default;
