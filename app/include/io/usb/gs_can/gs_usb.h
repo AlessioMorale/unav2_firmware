@@ -25,7 +25,6 @@ namespace unav::io::usb {
 #define USBD_STACK_SIZE (3 * configMINIMAL_STACK_SIZE / 2) * (CFG_TUSB_DEBUG ? 2 : 1)
 #define GS_STACK_SIZE configMINIMAL_STACK_SIZE
 #define DATA_QUEUE_SIZE 10
-#define CONTROL_QUEUE_SIZE 10
 #define CAN_CLOCK_SPEED 42000000
 class UsbCan {
  private:
@@ -39,17 +38,18 @@ class UsbCan {
 
  public:
   struct gs_host_frame {
-    u32 echo_id;
-    u32 can_id;
+    uint32_t echo_id;
+    uint32_t can_id;
 
-    u8 can_dlc;
-    u8 channel;
-    u8 flags;
-    u8 reserved;
-
-    u8 data[8];
-
-    u32 timestamp_us;
+    uint8_t can_dlc;
+    uint8_t channel;
+    uint8_t flags;
+    uint8_t reserved;
+    union data_u {
+      uint8_t data[8];
+      uint64_t data64;
+    } data;
+    uint32_t timestamp_us;
 
   } __packed __aligned(4);
 
@@ -86,11 +86,12 @@ class UsbCan {
   }
 
   bool control_xfer_cb(uint8_t rhport, uint8_t stage, const tusb_control_request_t *request) {
+    logger_debug("control_xfer_cb %u\r\n", stage);
+
     if (request->bmRequestType_bit.type != TUSB_REQ_TYPE_VENDOR || request->wIndex != 0) {
       return true;
     }
-    logger_debug("control_xfer_cb %p %p %u %u\r\n", request->bRequest, request->bmRequestType_bit.type, request->wIndex,
-                 request->wLength);
+
     auto control_message = etl::find_if(  //
         control_messages.begin(),         //
         control_messages.end(),           //
@@ -99,7 +100,6 @@ class UsbCan {
     if (static_cast<uint8_t>(control_message->request_type) == request->bRequest) {
       if (stage == CONTROL_STAGE_SETUP) {
         return control_message->length == request->wLength &&
-               // control_message->direction == request->bmRequestType_bit.direction &&
                tud_control_xfer(rhport, request, const_cast<void *>(control_message->data), control_message->length);
       }
 
@@ -185,7 +185,7 @@ class UsbCan {
     tud_init(BOARD_TUD_RHPORT);
 
     // RTOS forever loop
-    while (1) {
+    while (true) {
       // put this thread to waiting state until there is new events
       tud_task();
     }
@@ -197,19 +197,27 @@ class UsbCan {
   inline void usb_can_task_function() {
     // RTOS forever loop
     while (true) {
-      gs_host_frame frame = {0};
-      auto frame_size = sizeof(frame) - sizeof(frame.timestamp_us);
+      static gs_host_frame frame = {0};
+      static auto frame_size = sizeof(frame) - sizeof(frame.timestamp_us);
+      static size_t count = 0;
 
-      size_t count = 0;
       while ((count = tud_vendor_available()) > 0 && !data_in_queue.is_full()) {
-        logger_debug("usb_data_rx %u\r\n", frame_size);
-        (void)tud_vendor_read(&frame, frame_size);
-        data_in_queue.send(frame, 1);
-      }
-      while ((count = tud_vendor_write_available()) >= frame_size && data_out_queue.receive(frame, 1)) {
-          logger_debug("usb_data_tx %u\r\n", frame_size);
+        count = tud_vendor_read(&frame, frame_size);
+        if (count != frame_size) {
+          Error_Handler();
+        }
+        data_in_queue.send(frame, 0);
+        if ((tud_vendor_write_available()) >= frame_size) {
           tud_vendor_write(&frame, frame_size);
+        } else {
+          data_out_queue.send(frame, 0);
+        }
       }
+
+      while ((count = tud_vendor_write_available()) >= frame_size && data_out_queue.receive(frame, 1)) {
+        tud_vendor_write(&frame, frame_size);
+      }
+
       tud_vendor_flush();
       vTaskDelay(1);
     }
@@ -231,18 +239,6 @@ bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, const tusb_contro
   return false;
 }
 }
-
-void tud_dfu_runtime_reboot_to_dfu_cb() {}
-// // Invoked when CDC interface received data from host
-// void tud_vendor_rx_cb(uint8_t itf) {
-//   (void)itf;
-// }
-
-// void tud_vendor_tx_cb(uint8_t itf, uint32_t sent_bytes){
-//   (void)itf;
-//   (void)sent_bytes;
-// }
-
 // // Invoked when usb bus is resumed
 // void tud_resume_cb(void) {
 // }

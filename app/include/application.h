@@ -12,6 +12,7 @@ namespace unav {
 class Application {
  public:
   void setup() {
+    logger_init();
     logger_debug("Application.Setup()!\r\n");
     bsp::Board::instance.init_gpio();
     bsp::Board::instance.init_leds();

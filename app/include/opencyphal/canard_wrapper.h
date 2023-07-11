@@ -50,9 +50,13 @@ class Canard {
   }
 
   void send_heartbeat(bool warnings = false) {
-    logger_debug("one_second_callback()!\r\n");
     static const O1HeapDiagnostics heap_diag = o1heapGetDiagnostics(heap_);
-
+    static CanardTransferMetadata meta = {
+        .priority = CanardPriorityNominal,
+        .transfer_kind = CanardTransferKindMessage,
+        .port_id = uavcan_node_Heartbeat_1_0_FIXED_PORT_ID_,
+        .remote_node_id = CANARD_NODE_ID_UNSET,
+    };
     heartbeat.uptime = (uint32_t)Timing::get_us() / 1e6;
     heartbeat.mode.value = uavcan_node_Mode_1_0_OPERATIONAL;
     if (heap_diag.oom_count > 0 || warnings) {
@@ -63,15 +67,11 @@ class Canard {
 
     size_t serialized_size = sizeof(serialized);
     const int8_t err = uavcan_node_Heartbeat_1_0_serialize_(&heartbeat, serialized, &serialized_size);
-    assert(err >= 0);
+    if (err < 0) {
+      Error_Handler();
+    }
     if (err >= 0) {
-      const CanardTransferMetadata meta = {
-          .priority = CanardPriorityNominal,
-          .transfer_kind = CanardTransferKindMessage,
-          .port_id = uavcan_node_Heartbeat_1_0_FIXED_PORT_ID_,
-          .remote_node_id = CANARD_NODE_ID_UNSET,
-          .transfer_id = (CanardTransferID)(uavcan_node_heartbeat_counter++),
-      };
+      meta.transfer_id = (CanardTransferID)(uavcan_node_heartbeat_counter++),
       send(Timing::get_us() + 1e6,  // Set transmission deadline 1 second, optimal for heartbeat.
            &meta, serialized_size, &serialized[0]);
     }
@@ -85,7 +85,6 @@ class Canard {
   void process_rx_transfer(const CanardRxTransfer* const transfer) {
     logger_debug("transfer k%u: p%u\r\n", transfer->metadata.transfer_kind, transfer->metadata.port_id);
   }
-
 
   const CanardTxQueueItem* tx_peek() { return canardTxPeek(&tx_queue_); }
   const CanardTxQueueItem* tx_pop(const CanardTxQueueItem* const item) { return canardTxPop(&tx_queue_, item); }
