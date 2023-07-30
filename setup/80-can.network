@@ -1,9 +1,15 @@
+
 [Match]
-Name=can*
+Name=can* vcan*
 
 [Link]
 RequiredForOnline=no
+TransmitQueueLength=10000
+MTUBytes=72
 
+# https://man.archlinux.org/man/systemd.network.5#%5BCAN%5D_SECTION_OPTIONS
 [CAN]
-BitRate=500K
+BitRate=1000K
+DataBitRate=2000K
 RestartSec=100ms
+FDMode=yes

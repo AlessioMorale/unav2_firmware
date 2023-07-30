@@ -6,16 +6,16 @@
     "configurations": [
         {
             "name": "Launch",
-            "cwd": "${workspaceFolder}",
+            "cwd": "${workspaceRoot}",
             "executable": "${workspaceRoot}/build/app/src/uNav2.elf",
             "request": "launch",
             "type": "cortex-debug",
-            "runToEntryPoint": "main",
+            // "runToEntryPoint": "main",
             "servertype": "jlink",
             "configFiles": [ "${workspaceRoot}/tools/openocd.cfg" ],
             "device": "STM32F407VE",
             "interface": "swd",
-            "runToMain": true, // else it starts at reset handler - not interested
+            "runToMain": false, // else it starts at reset handler - not interested
             "preLaunchTask": "CMake: build", // configured in tasks.json
             // "preLaunchCommands": ["Build all"], // you can execute command instead of task
             "svdFile": "", // Include svd to watch device peripherals
@@ -26,12 +26,14 @@
                 "address": "auto",
                 "decoders": [
                     {
-                        "label": "",
+                        "label": "RTT - STDOUT",
                         "port": 0,
-                        "type": "console"
+                        "type": "console",
+                        "timestamp": true,
+                        "logfile": "${workspaceRoot}/build/rtt.log"
                     }
                 ]
-            },
+            }
         },
         {
             "name": "Attach",
@@ -59,7 +61,7 @@
                         "type": "console"
                     }
                 ]
-            },
+            }
         }
     ]
 }

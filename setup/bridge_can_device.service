@@ -1,0 +1,7 @@
+[Service]
+Type=oneshot
+ExecStart=/bin/bash -c "/usr/bin/cangw -A -s vcan0 -d can0 -e -X"
+ExecStart=/bin/bash -c "/usr/bin/cangw -A -s can0 -d vcan0 -e -X"
+
+[Install]
+WantedBy=sys-subsystem-net-devices-can0.device
