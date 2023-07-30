@@ -108,11 +108,16 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
   (void)langid;
 
   uint8_t chr_count;
-
-  if (index == 0) {
+  switch(index){
+  case 0: {
     memcpy(&_desc_str[1], string_desc_arr[0], 2);
     chr_count = 1;
-  } else {
+    break;
+  };
+  case STRING_DESC_SERIAL:{
+  
+  }
+  default: {
     // Note: the 0xEE index string is a Microsoft OS 1.0 Descriptors.
     // https://docs.microsoft.com/en-us/windows-hardware/drivers/usbcon/microsoft-defined-usb-descriptors
 
@@ -128,6 +133,7 @@ uint16_t const *tud_descriptor_string_cb(uint8_t index, uint16_t langid) {
     for (uint8_t i = 0; i < chr_count; i++) {
       _desc_str[1 + i] = str[i];
     }
+  }
   }
 
   // first byte is length (including header), second byte is string type

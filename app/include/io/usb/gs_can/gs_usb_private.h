@@ -269,3 +269,27 @@ struct gs_device_termination_state {
   u32 state;
 } __packed __aligned(4);
 
+
+struct gs_host_frame {
+    uint32_t echo_id;
+    uint32_t can_id;
+
+    uint8_t can_dlc;
+    uint8_t channel;
+    uint8_t flags;
+    uint8_t reserved;
+    uint8_t data[8];
+    uint32_t timestamp_us;
+  } __packed __aligned(4);
+
+  struct gs_host_frame_canfd {
+    u32 echo_id;
+    u32 can_id;
+
+    u8 can_dlc;
+    u8 channel;
+    u8 flags;
+    u8 reserved;
+    u8 data[64];
+    uint32_t timestamp_us;
+  } __packed __aligned(4);
