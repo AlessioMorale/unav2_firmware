@@ -1,4 +1,7 @@
 #pragma once
+#include "class/vendor/vendor_device.h"
+#include "projdefs.h"
+#include "timing.h"
 #ifndef CDC_H
 #define CDC_H
 #include <bsp/board.h>
@@ -26,6 +29,10 @@ namespace unav::io::usb {
 #define GS_STACK_SIZE configMINIMAL_STACK_SIZE
 #define DATA_QUEUE_SIZE 50
 #define CAN_CLOCK_SPEED 42000000
+
+extern "C" {
+void vendord_reset(uint8_t rhport);
+}
 class UsbCan {
  private:
   struct gs_control_message {
@@ -208,7 +215,6 @@ class UsbCan {
       tud_task();
     }
   }
-
   //--------------------------------------------------------------------+
   // USB CDC
   //--------------------------------------------------------------------+
@@ -218,22 +224,36 @@ class UsbCan {
       static gs_frame frame = {0};
       static auto frame_size = sizeof(frame) - sizeof(frame.timestamp_us);
       static size_t count = 0;
+      uint32_t last_write_ok_ms = Timing::get_ms();
 
-      while ((count = tud_vendor_available()) >= frame_size && !data_in_queue.is_full()) {
+      while ((count = tud_vendor_available()) >= frame_size && !data_in_queue.is_full()
+             //&& !data_out_queue.is_full()
+      ) {
         count = tud_vendor_read(&frame, frame_size);
         if (count != frame_size) {
           Error_Handler();
         }
         data_in_queue.send(frame, 1);
-        if ((tud_vendor_write_available()) >= frame_size) {
-          tud_vendor_write(&frame, frame_size);
-        } else {
-          data_out_queue.send(frame, 0);
-        }
+        // if ((tud_vendor_write_available()) >= frame_size) {
+        //   tud_vendor_write(&frame, frame_size);
+        // } else {
+        //   auto ret = data_out_queue.send(frame, 0);
+        //   if(!ret){
+        //     Error_Handler();
+        //   }
+        // }
       }
 
       while ((count = tud_vendor_write_available()) >= frame_size && data_out_queue.receive(frame, 0)) {
         tud_vendor_write(&frame, frame_size);
+      }
+
+      if (tud_vendor_available() > 0) {
+        last_write_ok_ms = Timing::get_ms();
+      }
+      if (Timing::get_ms() - last_write_ok_ms > 1e3) {
+        last_write_ok_ms = Timing::get_ms();
+        tud_vendor_read_flush();
       }
 
       tud_vendor_flush();

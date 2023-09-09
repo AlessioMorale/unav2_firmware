@@ -15,6 +15,7 @@ systemctl enable bridge_can_device
 systemctl start bridge_can_device
 
 # install the network configuration to automatically start the CAN interface
+cp "${SCRIPT_PATH}/70-gs_usb_can.link" /etc/systemd/network/
 cp "${SCRIPT_PATH}/80-can.network" /etc/systemd/network/
 cp "${SCRIPT_PATH}/vcan0.netdev" /etc/systemd/network/
 systemctl restart systemd-networkd.service

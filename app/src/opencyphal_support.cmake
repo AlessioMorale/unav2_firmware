@@ -11,6 +11,8 @@ message(STATUS "vcs_revision_id: ${vcs_revision_id}")
 add_definitions(
         -DVCS_REVISION_ID=0x${vcs_revision_id}ULL
         -DNODE_NAME="org.pizzarobotics.unav2"
+        -DVERSION_MAJOR=0
+        -DVERSION_MINOR=1
 )
 # building Cyphal data type headers
 find_package(nnvg REQUIRED)

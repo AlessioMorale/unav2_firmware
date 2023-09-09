@@ -13,3 +13,4 @@ BitRate=1000K
 DataBitRate=2000K
 RestartSec=100ms
 FDMode=yes
+Loopback=no
