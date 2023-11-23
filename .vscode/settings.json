@@ -116,5 +116,16 @@
     "C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
     "C_Cpp.errorSquiggles": "disabled",
     "cmake.configureOnOpen": false,
-    "mcu-debug.rtos-views.showRTOS": true
+    "mcu-debug.rtos-views.showRTOS": true,
+    "todo-tree.regex.regex": "(//|#|<!--|;|/\\*|^|^\\s*(-|\\d+.))\\s*($TAGS)",
+    "todo-tree.general.tags": [
+            "BUG",
+            "HACK",
+            "FIXME",
+            "TODO",
+            "XXX",
+            "[ ]",
+            "[x]"
+        ]
+
 }

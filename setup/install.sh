@@ -10,13 +10,13 @@ udevadm control --reload
 cp "${SCRIPT_PATH}/can_modules.conf" /etc/modules-load.d/
 systemctl restart systemd-modules-load.service
 
-cp "${SCRIPT_PATH}/bridge_can_device.service" /etc/systemd/system/
-systemctl enable bridge_can_device
-systemctl start bridge_can_device
-
 # install the network configuration to automatically start the CAN interface
 cp "${SCRIPT_PATH}/70-gs_usb_can.link" /etc/systemd/network/
 cp "${SCRIPT_PATH}/80-can.network" /etc/systemd/network/
 cp "${SCRIPT_PATH}/vcan0.netdev" /etc/systemd/network/
-systemctl restart systemd-networkd.service
-systemctl restart NetworkManager.service
+systemctl restart systemd-networkd.service || true
+systemctl restart NetworkManager.service || true
+
+cp "${SCRIPT_PATH}/bridge_can_device.service" /etc/systemd/system/
+systemctl enable bridge_can_device || true
+systemctl start bridge_can_device

@@ -11,7 +11,7 @@
             "request": "launch",
             "type": "cortex-debug",
             // "runToEntryPoint": "main",
-            "servertype": "jlink",
+            "servertype": "openocd",
             "configFiles": [ "${workspaceRoot}/tools/openocd.cfg" ],
             "device": "STM32F407VE",
             "interface": "swd",
@@ -33,7 +33,9 @@
                         "logfile": "${workspaceRoot}/build/rtt.log"
                     }
                 ]
-            }
+            },
+            "armToolchainPath": "${env:GCC_PATH}",
+            "gdbPath": "${env:GCC_PATH}/arm-none-eabi-gdb"
         },
         {
             "name": "Attach",
@@ -42,7 +44,7 @@
             "request": "attach",
             "type": "cortex-debug",
             "runToEntryPoint": "main",
-            "servertype": "jlink",
+            "servertype": "openocd",
             "configFiles": [ "${workspaceRoot}/tools/openocd.cfg" ],
             "device": "STM32F407VG",
             "interface": "swd",
@@ -61,7 +63,8 @@
                         "type": "console"
                     }
                 ]
-            }
-        }
+            },
+            "armToolchainPath": "${env:GCC_PATH}",
+            "gdbPath": "${env:GCC_PATH}/arm-none-eabi-gdb"        }
     ]
 }

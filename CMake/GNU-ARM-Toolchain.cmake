@@ -59,7 +59,7 @@ set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE ONLY)
 set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE ONLY)
 
 # find additional toolchain executables
-find_program(ARM_SIZE_EXECUTABLE "${GCC_PREFIX}size")
-find_program(ARM_GDB_EXECUTABLE "${GCC_PREFIX}gdb")
-find_program(ARM_OBJCOPY_EXECUTABLE "${GCC_PREFIX}objcopy")
-find_program(ARM_OBJDUMP_EXECUTABLE "${GCC_PREFIX}objdump")
+find_program(ARM_SIZE_EXECUTABLE "${COMPILER_PATH}${GCC_PREFIX}size")
+find_program(ARM_GDB_EXECUTABLE "${COMPILER_PATH}${GCC_PREFIX}gdb")
+find_program(ARM_OBJCOPY_EXECUTABLE "${COMPILER_PATH}${GCC_PREFIX}objcopy")
+find_program(ARM_OBJDUMP_EXECUTABLE "${COMPILER_PATH}${GCC_PREFIX}objdump")
