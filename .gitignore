@@ -18,4 +18,6 @@ cmake-build-debug/*
 .cache
 .venv
 build/
-.direnv
+.direnv/
+.tools/
+.vagrant/

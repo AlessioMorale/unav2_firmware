@@ -36,7 +36,7 @@ endif()
 project (${application_name} VERSION ${PROJECT_VERSION} LANGUAGES C CXX ASM)
 
 # FreeRTOS settings
-set(FREERTOS_CONFIG_FILE_DIRECTORY "../app/include" CACHE STRING "")
+set(FREERTOS_CONFIG_INCLUDE "../app/include" CACHE STRING "")
 set(FREERTOS_PORT "GCC_ARM_CM4F" CACHE STRING "")
 
 # TinyUSB settings

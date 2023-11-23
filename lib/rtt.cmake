@@ -6,3 +6,5 @@ add_library(rtt STATIC
 )
 target_compile_options(rtt PUBLIC ${additional_compiler_flags})
 target_include_directories(rtt PUBLIC "tinyusb/lib/SEGGER_RTT/RTT")
+target_include_directories(rtt PUBLIC "tinyusb/lib/SEGGER_RTT/Config")
+

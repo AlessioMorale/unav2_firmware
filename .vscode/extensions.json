@@ -1,0 +1,9 @@
+{
+    "recommendations": [
+        "ms-vscode.cmake-tools",
+        "twxs.cmake",
+        "marus25.cortex-debug",
+        "marus25.cortex-debug-dp-stm32f4",
+        "mkhl.direnv"
+    ]
+}
