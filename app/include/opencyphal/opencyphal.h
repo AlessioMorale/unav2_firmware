@@ -1,7 +1,7 @@
 #pragma once
-#include "timing.h"
 #ifndef OPENCYPHAL_H
 #define OPENCYPHAL_H
+#include "timing.h"
 #include <FreeRTOS.h>
 #include <debug.h>
 #include <io/usb/gs_can/gs_usb.h>
@@ -17,12 +17,10 @@
 
 #include "canard_wrapper.h"
 
-#define KILO 1000L
-#define MEGA ((int64_t)KILO * KILO)
 namespace unav::opencyphal {
 
-#define OC_STACK_SIZE configMINIMAL_STACK_SIZE + 512
 class OpenCyphal {
+  static constexpr size_t OC_STACK_SIZE = configMINIMAL_STACK_SIZE + 512;
  public:
   void setup(IQueue<unav::io::usb::UsbCan::gs_frame>& tx_queue, IQueue<unav::io::usb::UsbCan::gs_frame>& rx_queue,
              etl::array<uint8_t, 16> unique_id) {
@@ -35,7 +33,7 @@ class OpenCyphal {
   };
 
   OpenCyphal()
-      : can_task{thread_delegate::create<OpenCyphal, &OpenCyphal::can_comm_task_function>(*this), ThreadPriority::High,
+      : can_task{thread_delegate::create<OpenCyphal, &OpenCyphal::can_comm_task_function>(*this), DefaultPriorities::Communication,
                  "cyph/com"} {}
 
  private:

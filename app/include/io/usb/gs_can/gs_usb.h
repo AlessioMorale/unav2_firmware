@@ -1,9 +1,9 @@
 #pragma once
+#ifndef GS_USB_H
+#define GS_USB_H
 #include "class/vendor/vendor_device.h"
-#include "projdefs.h"
 #include "timing.h"
-#ifndef CDC_H
-#define CDC_H
+#include "io/can_common.h"
 #include <bsp/board.h>
 #include <debug.h>
 #include <etl/algorithm.h>
@@ -44,7 +44,6 @@ class UsbCan {
   inline static std::unique_ptr<UsbCan> instance;
 
  public:
-  using gs_frame = gs_host_frame_canfd;
   static UsbCan *get_instance() {
     if (instance == nullptr) {
       instance.reset(new UsbCan());
@@ -110,8 +109,8 @@ class UsbCan {
       : data_in_queue("gs_usb_in"),
         data_out_queue("gs_usb_out"),
         usb_device_task{thread_delegate::create<UsbCan, &UsbCan::usb_device_task_function>(*this),
-                        ThreadPriority::Highest, "usb/dev"},
-        usb_can_task{thread_delegate::create<UsbCan, &UsbCan::usb_can_task_function>(*this), ThreadPriority::High,
+                        DefaultPriorities::Drivers, "usb/dev"},
+        usb_can_task{thread_delegate::create<UsbCan, &UsbCan::usb_can_task_function>(*this),DefaultPriorities::Drivers,
                      "usb/gs_usb"} {}
 
   Queue<DATA_QUEUE_SIZE, gs_frame> data_in_queue;
@@ -264,21 +263,9 @@ class UsbCan {
 }  // namespace unav::io::usb
 
 extern "C" {
-// Invoked when device is mounted
-void tud_mount_cb(void) {}
-
-// Invoked when device is unmounted
-void tud_umount_cb(void) {}
-
 bool tud_vendor_control_xfer_cb(uint8_t rhport, uint8_t stage, const tusb_control_request_t *request) {
-  if (unav::io::usb::UsbCan::get_instance() != nullptr) {
-    return unav::io::usb::UsbCan::get_instance()->control_xfer_cb(rhport, stage, request);
-  }
-  return false;
+  return unav::io::usb::UsbCan::get_instance()->control_xfer_cb(rhport, stage, request);
 }
 }
-// // Invoked when usb bus is resumed
-// void tud_resume_cb(void) {
-// }
 
-#endif /* CDC_H */
+#endif /* GS_USB_H */

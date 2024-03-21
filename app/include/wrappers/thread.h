@@ -28,6 +28,15 @@ enum class ThreadPriority : UBaseType_t {
   Highest = ((configMAX_PRIORITIES)-1)
 };
 
+namespace DefaultPriorities
+{
+  constexpr ThreadPriority SafetyCritical = ThreadPriority::Highest;
+  constexpr ThreadPriority Communication = ThreadPriority::Mid;
+  constexpr ThreadPriority Drivers = ThreadPriority::High;
+  constexpr ThreadPriority HMI = ThreadPriority::HMI;
+  constexpr ThreadPriority Low = ThreadPriority::Low;
+}
+
 template <size_t stack_size> class Thread {
 
 public:

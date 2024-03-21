@@ -3,14 +3,14 @@
 Name=can* vcan*
 
 [Link]
-RequiredForOnline=no
-TransmitQueueLength=10000
-MTUBytes=72
+RequiredForOnline=no ; do not wait for this interface to be online 
+TransmitQueueLength=10000 ; increase the transmit queue length to 10000
+MTUBytes=72 ; set the MTU to 72 bytes to suit FDMode
 
-# https://man.archlinux.org/man/systemd.network.5#%5BCAN%5D_SECTION_OPTIONS
+; https://man.archlinux.org/man/systemd.network.5#%5BCAN%5D_SECTION_OPTIONS
 [CAN]
 BitRate=1000K
 DataBitRate=2000K
-RestartSec=100ms
+RestartSec=100ms 
 FDMode=yes
-Loopback=no
+Loopback=no; do not enable loopback mode
