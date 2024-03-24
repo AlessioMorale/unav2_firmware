@@ -24,7 +24,6 @@ set(lss_file ${application_name}.lss)
 
 # add sources to elf file
 add_executable(${elf_file} ${sources})
-include("opencyphal_support.cmake")
 
 target_link_libraries(${elf_file} PUBLIC rtt)
 

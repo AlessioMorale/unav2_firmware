@@ -9,7 +9,7 @@
 #include <cstdint>
 #include <cstring>
 namespace unav {
-enum class serial_streams_ids : size_t { COMM_SERIAL, CLI_SERIAL, COUNT };
+enum class serial_streams_ids : size_t { COMM_SERIAL, COUNT };
 
 class Application {
  public:
@@ -21,7 +21,7 @@ class Application {
     auto led = bsp::Board::instance.led(bsp::BoardLeds::activity);
     led.set(true);
 
-    serial_interface.link_stream(cli_module.get_stream(), static_cast<size_t>(serial_streams_ids::CLI_SERIAL));
+    serial_interface.link_stream(cli_module.get_stream(), static_cast<size_t>(serial_streams_ids::COMM_SERIAL));
     cli_module.setup();
     serial_interface.setup();
   }

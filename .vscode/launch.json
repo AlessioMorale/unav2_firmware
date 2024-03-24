@@ -34,8 +34,8 @@
                     }
                 ]
             },
-            "armToolchainPath": "${env:GCC_PATH}",
-            "gdbPath": "${env:GCC_PATH}/arm-none-eabi-gdb"
+            "armToolchainPath": "${workspaceRoot}/.tools/arm64_Darwin/arm-gnu-toolchain/bin/",
+            "gdbPath": "${workspaceRoot}/.tools/arm64_Darwin/arm-gnu-toolchain/bin/arm-none-eabi-gdb"
         },
         {
             "name": "Attach",

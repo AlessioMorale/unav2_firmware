@@ -25,3 +25,6 @@
 [submodule "lib/embedded-cli"]
 	path = lib/embedded-cli
 	url = https://github.com/funbiscuit/embedded-cli.git
+[submodule "lib/zcm"]
+	path = lib/zcm
+	url = https://github.com/ZeroCM/zcm
